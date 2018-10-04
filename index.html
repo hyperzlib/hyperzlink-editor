@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+	<script src="lib/jquery.min.js"></script>
+	<script src="lib/jquery-ui.min.js"></script>
+	<script src="utils/autoloader.js"></script>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="lib/jquery-ui.min.css" />
+	<link rel="stylesheet" href="lib/jquery-ui.structure.min.css" />
+	<link rel="stylesheet" href="lib/jquery-ui.theme.min.css" />
+	<link rel="stylesheet" href="lib/fontawesome/font-awesome.min.css" />
+	<title>Untitled - Hyperzlink</title>
+	<style>
+	body {
+		margin: 0;
+		overflow: hidden;
+	}
+
+	* {
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+	</style>
+</head>
+<body>
+	<div id="blur-group">
+		<div id="divMenuBar"></div>
+		<div id="divNavBar"></div>
+		<div id="divPianoRoll"></div>
+	</div>
+	<script>
+	loader((use) => {
+		use('ui.MenuBar');
+	    use('ui.NavBar');
+		use('ui.PianoRoll');
+		use('ui.Panel.EditPanel');
+	}).then(() => {
+	    var heightMenuBar = 23;
+	    menuBar = new this.MenuBar('#divMenuBar');
+		menuBar.setHeight(heightMenuBar);
+	    navBar = new this.NavBar('#divNavBar');
+		pianoRoll = new this.PianoRoll('#divPianoRoll');
+		pianoRoll.setThumb('res/thumb.png');
+		$(window).resize(function(){
+		    var width = $(window).width();
+		    var height = $(window).height();
+			navBar.setWidth(width);
+		    height -= heightMenuBar;
+			height -= navBar.getHeight();
+			pianoRoll.setWidth(width);
+			pianoRoll.setHeight(height);
+		});
+		$(window).resize();
+		
+		//测试用
+		navBar.addTab('edit', 'Edit');
+		navBar.addTab('track', 'Track');
+
+		menuBar.addNav('file', 'File', 'F');
+		menuBar.addNav('edit', 'Edit', 'E');
+		menuBar.addNav('synthetize', 'Synthetize', 'R');
+		menuBar.addNav('setting', 'Setting', 'S');
+		menuBar.addNav('help', 'Help', 'H');
+	}).catch((e) => {
+		console.log(e);
+	});
+	</script>
+</body>
+</html>

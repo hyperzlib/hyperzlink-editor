@@ -1,0 +1,35 @@
+name: demo plugin
+author: hyperzlib
+icon: icon.png
+description: a demo plugin for hyperzlink
+main: hyperzlib.Demo
+params:
+  opening:
+    name: Opening
+    type: canvas
+    min: 50
+    max: 500
+    pps: 225
+  tenseness:
+    name: Tenseness
+    type: slider
+    min: -100
+    max: 100
+
+zh_CN:
+  name: "测试插件"
+  description: "hyperzlink的demo插件"
+  params:
+    opening:
+      name: "开口"
+    tenseness:
+      name: "张力"
+      
+jp:
+  name: "プラグインをテストする"
+  description: "hyperzlinkのプラグインデモ"
+  params:
+    opening:
+      name: "オープニング"
+    tenseness:
+      name: "張力"
