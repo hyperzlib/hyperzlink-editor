@@ -32,19 +32,19 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	this.pianoNoteWidth = 80;
 	this.zoom = 100;
 	this.color = {
-		whiteKey: '#f0f0f0',
+		whiteKey: '#fbfbfb',
 		blackKey: '#7d7b7c',
 		infoText: '#939393',
 		divLine: '#dcdcdc',
 		beatLine: '#c8c8c8',
 		measureLine: '#a9a9a9',
-		whiteLine: '#f0f0f0',
-		blackLine: '#dddddd',
+		whiteLine: '#fbfbfb',
+		blackLine: '#e3e3e3',
 		popup: '#007fff',
-		timeLineBg: '#f0f0f0',
+		timeLineBg: '#fbfbfb',
 		timeLine: '#007fff',
 		timeLineText: '#939393',
-		bgAlpha: 0.45,
+		bgAlpha: 0.65,
 		noteListBg: '#ffffff',
 	};
 	

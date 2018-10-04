@@ -23,7 +23,7 @@ namespace('ui').NavBar = function(dom){
         base = this.root.append('<div class="div-nav-container"></div>').find('.div-nav-container:first');
         tagDom = base.append('<ul></ul>').find('ul:last');
         base.tabs({
-            collapsible: true
+            collapsible: false
         });
         base.on('tabsactivate', function(event, ui){
             var dom = tagDom.find('.ui-state-active');
