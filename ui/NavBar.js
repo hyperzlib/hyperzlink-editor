@@ -2,12 +2,15 @@ namespace('ui').NavBar = function(dom){
     //! private
     var navList = {};
     var nameList = {};
+    var panelList = {};
     var tagDom;
     var styleElement;
     var base;
     var tabNavDom;
     var tabTempPanel;
     var collapse = false;
+    var activePanel = null;
+    var autoLaunch = null;
 
     //! public
     this.panels = {};
@@ -28,7 +31,7 @@ namespace('ui').NavBar = function(dom){
         base.on('tabsactivate', function(event, ui){
             var dom = tagDom.find('.ui-state-active');
             if(dom.length > 0){
-                var currentTag = dom.text();
+                var currentTag = _this.getNameByLabel(dom.text());
                 _this.showPanel(currentTag);
             }
         })
@@ -40,6 +43,7 @@ namespace('ui').NavBar = function(dom){
             }
         });*/
         tabTempPanel = base.append(`<div id="div-nav-temp"></div>`).find('#div-nav-temp:first');
+        tabTempPanel.css({padding: 0});
         this.update();
     };
     
@@ -127,19 +131,45 @@ namespace('ui').NavBar = function(dom){
         var navData = {};
         navData.tag = tagDom.append(`<li><a href="#div-nav-temp" data-name="${name}">${label}</a></li>`).find('li:last');
         this.updateTags();
-        if(Object.keys(navList).length == 0){ //默认展开第一项
-            navData.tag.find('a:first').click();
+        if(Object.keys(navList).length == 0){
+            autoLaunch = navData.tag;
         }
         nameList[label] = name;
         navList[name] = navData;
     };
     
-    this.addPanel = function(name, panel){
-        
+    this.bindPanel = function(name, panel){
+        panelList[name] = panel;
+        if(autoLaunch !== null){ //默认展开第一项
+            autoLaunch.find('a').click();
+            autoLaunch = null;
+        }
+    };
+
+    this.unbindPanel = function(name){
+        if(typeof panelList[name] != 'undefined'){
+            delete panelList[name];
+        }
     };
 
     this.showPanel = function(name){
+        if(activePanel != null && typeof panelList[activePanel] != 'undefined'){
+            panelList[activePanel].hide();
+        }
+        if(typeof panelList[name] != 'undefined'){
+            panelList[name].show(...this.getPanelPos());
+            activePanel = name;
+        }
+    };
 
+    this.getPanelPos = function(){
+        var x, y, w, h;
+        var t = tabTempPanel.offset();
+        x = t.left;
+        y = t.top;
+        w = tabTempPanel.width();
+        h = tabTempPanel.height();
+        return [x, y, w, h];
     };
     
     this.init();

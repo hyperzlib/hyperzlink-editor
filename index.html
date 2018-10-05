@@ -5,6 +5,8 @@
 	<script src="lib/jquery-ui.js"></script>
 	<script src="utils/autoloader.js"></script>
 	<meta charset="utf-8">
+	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="view/fonts.css" />
 	<link rel="stylesheet" href="lib/jquery-ui.css" />
 	<link rel="stylesheet" href="lib/fontawesome/font-awesome.min.css" />
 	<title>Untitled - Hyperzlink</title>
@@ -22,49 +24,11 @@
 	</style>
 </head>
 <body>
-	<div id="blur-group">
+	<div id="main-container">
 		<div id="divMenuBar"></div>
 		<div id="divNavBar"></div>
 		<div id="divPianoRoll"></div>
 	</div>
-	<script>
-	loader((use) => {
-		use('ui.MenuBar');
-	    use('ui.NavBar');
-		use('ui.PianoRoll');
-		use('ui.Panel.EditPanel');
-	}).then(() => {
-	    var heightMenuBar = 23;
-	    menuBar = new this.MenuBar('#divMenuBar');
-		menuBar.setHeight(heightMenuBar);
-	    navBar = new this.NavBar('#divNavBar');
-		pianoRoll = new this.PianoRoll('#divPianoRoll');
-		pianoRoll.setThumb('res/thumb.png');
-		$(window).resize(function(){
-		    var width = $(window).width();
-		    var height = $(window).height();
-			navBar.setWidth(width);
-		    height -= heightMenuBar;
-			height -= navBar.getHeight();
-			pianoRoll.setWidth(width);
-			pianoRoll.setHeight(height);
-		});
-		$(window).resize();
-		
-		//测试用
-		navBar.addTab('edit', 'Edit');
-		navBar.addTab('track', 'Track');
-
-		menuBar.addNav('file', 'File', 'F');
-		menuBar.file.addMenuItem('open', 'Open', function(){console.log('opened')});
-
-		menuBar.addNav('edit', 'Edit', 'E');
-		menuBar.addNav('synthetize', 'Synthetize', 'R');
-		menuBar.addNav('setting', 'Setting', 'S');
-		menuBar.addNav('help', 'Help', 'H');
-	}).catch((e) => {
-		console.log(e);
-	});
-	</script>
+	<script src="main.js"></script>
 </body>
 </html>

@@ -1,0 +1,152 @@
+<style>
+    .div-container-edit {
+        padding: 35px 16px;
+        margin: 0 auto;
+        width: 1000px;
+    }
+
+    .div-edit-toolbar {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0px 10px;
+    }
+
+    .div-edit-time {
+        height: 45px;
+        background: #222222;
+        background: -moz-linear-gradient(top,  #222222 0%, #7d7b7c 100%);
+        background: -webkit-linear-gradient(top,  #222222 0%,#7d7b7c 100%);
+        background: -o-linear-gradient(top,  #222222 0%,#7d7b7c 100%);
+        background: -ms-linear-gradient(top,  #222222 0%,#7d7b7c 100%);
+        background: linear-gradient(to bottom,  #222222 0%,#7d7b7c 100%);
+        padding: 1px 5px;
+        color: #fff;
+        margin-bottom: 5px;
+        display: inline-block;
+        vertical-align: middle;
+        border-radius: 3px;
+    }
+
+    .div-edit-time .time-group {
+        display: inline-block;
+        height: 100%;
+        margin: 0px 5px;
+    }
+
+    .div-edit-time .time-info {
+        font-size: 8px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .div-edit-time .time-digi {
+        font-family: digifac;
+        font-size: 25px;
+        margin-top: -5px;
+    }
+
+    .div-edit-toolbar .slider {
+        display: inline-block;
+        width: 230px;
+        margin: 0px 15px;
+    }
+
+    .div-edit-toolbar .input-lyric {
+        margin-left: 5px;
+        width: 200px;
+    }
+
+    .div-edit-toolbar .ui-button {
+        height: 30px;
+    }
+
+    .div-edit-toolbar .value-show {
+        display: inline-block;
+        height: 25px;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        border-radius: 3px;
+        padding: 2px 5px;
+        vertical-align: middle;
+    }
+
+    .div-edit-toolbar .zoom-show {
+        width: 50px;
+    }
+
+    .div-edit-show .ui-button {
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+<div class="div-container-edit" id="editpanel">
+    <div class="div-edit-timeline" id="editpanel-time">
+        <div class="div-edit-toolbar">
+            <button><i class="fa fa-play"></i></button>
+            <button><i class="fa fa-stop"></i></button>
+            <button><i class="fa fa-step-backward"></i></button>
+            <button><i class="fa fa-backward"></i></button>
+            <button><i class="fa fa-forward"></i></button>
+            <button><i class="fa fa-step-forward"></i></button>
+        </div>
+        <div class="div-edit-time">
+            <div class="time-group">
+                <div class="time-info">NOW POS</div>
+                <div class="time-digi">1:1:000</div>
+            </div>
+            <div class="time-group">
+                <div class="time-info">TEMPO</div>
+                <div class="time-digi">120</div>
+            </div>
+            <div class="time-group">
+                <div class="time-info">BEAT</div>
+                <div class="time-digi">4/4</div>
+            </div>
+            <div class="time-group">
+                <div class="time-info">CURSOR</div>
+                <div class="time-digi">1:1:000</div>
+            </div>
+            <div class="time-group">
+                <div class="time-info">QUANTIZE</div>
+                <div class="time-digi">1/64</div>
+            </div>
+            <div class="time-group">
+                <div class="time-info">LENGTH</div>
+                <div class="time-digi">1/64</div>
+            </div>
+        </div>
+        <div class="div-edit-toolbar">
+            <button><i class="fa fa-mouse-pointer"></i></button>
+            <button><i class="fa fa-pencil"></i></button>
+            <button><i class="fa fa-eraser"></i></button>
+        </div>
+    </div>
+    <div class="div-edit-tools" id="editpanel-edit">
+        <div class="div-edit-toolbar">
+            <label>Lyric:</label>
+            <input class="form-control input-lyric" />
+        </div>
+        <div class="div-edit-toolbar">
+            <label>Zoom:</label>
+            <div class="slider" id="pianoroll-zoom-slider"></div>
+            <div class="value-show zoom-show">100</div>
+        </div>
+        <div class="div-edit-toolbar div-edit-show">
+            <button>Params</button>
+            <button>Wave</button>
+            <button>Phoneme</button>
+        </div>
+    </div>
+</div>
+<script>
+$('#editpanel .div-edit-toolbar').controlgroup();
+$('#editpanel .slider').slider({
+    min: 50,
+    max: 500,
+    value: 100,
+});
+</script>

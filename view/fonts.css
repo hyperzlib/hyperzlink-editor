@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'digifac';
+    src: url('../res/fonts/digifac.eot');
+    src: url('../res/fonts/digifac.eot') format('embedded-opentype'),
+         url('../res/fonts/digifac.woff2') format('woff2'),
+         url('../res/fonts/digifac.woff') format('woff'),
+         url('../res/fonts/digifac.ttf') format('truetype'),
+         url('../res/fonts/digifac.svg#digifac') format('svg');
+}
