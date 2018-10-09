@@ -1,0 +1,426 @@
+[conf]
+language=中文普通话
+code=zh,zh-CN,936
+scheme=xsampa
+consonants=ts`,ts`_h,s`,k_h,s\,ts\_h,x,l,ts\,n,k,t_h,s,p_h,m,z`,ts,ts_h,t,p,f
+vowels=uAN,iUN,AN,iAN,ua_n,uaI,@N,UN,iAU,iE_n,uo,iN,@_n,ei,y{_n,AU,@U,ua,a_n,u@_n,uei,aI,u@N,7,iE_r,i_n,u,ia,i`,a,i@U,y_n,yE_r,o,i,y,i\,@`
+stretch=uAN,iUN,AN,iAN,ua_n,uaI,@N,UN,iAU,iE_n,uo,iN,@_n,ei,y{_n,AU,@U,ua,a_n,u@_n,uei,aI,u@N,7,iE_r,i_n,u,ia,i`,a,i@U,y_n,yE_r,o,i,y,i\,@`
+
+[dict]
+zhuang		ts` uAN
+chuang		ts`_h uAN
+shuang		s` uAN
+kuang		k_h uAN
+xiong		s\ iUN
+qiong		ts\_h iUN
+zhang		ts` AN
+huang		x uAN
+liang		l iAN
+shuan		s` ua_n
+chang		ts`_h AN
+shuai		s` uaI
+zheng		ts` @N
+cheng		ts`_h @N
+chong		ts`_h UN
+jiang		ts\ iAN
+chuai		ts`_h uaI
+chuan		ts`_h ua_n
+sheng		s` @N
+jiong		ts\ iUN
+qiang		ts\_h iAN
+shang		s` AN
+niang		n iAN
+zhuai		ts` uaI
+zhong		ts` UN
+guang		k uAN
+xiang		s\ iAN
+zhuan		ts` ua_n
+jiao		ts\ iAU
+tian		t_h iE_n
+tiao		t_h iAU
+gong		k UN
+shuo		s` uo
+guai		k uaI
+jing		ts\ iN
+geng		k @N
+shen		s` @_n
+shei		s` ei
+juan		ts\ y{_n
+shao		s` AU
+teng		t_h @N
+shou		s` @U
+jian		ts\ iE_n
+guan		k ua_n
+shua		s` ua
+ning		n iN
+hang		x AN
+suan		s ua_n
+huan		x ua_n
+huai		x uaI
+heng		x @N
+shan		s` a_n
+song		s UN
+shun		s` u@_n
+hong		x UN
+shui		s` uei
+nong		n UN
+shai		s` aI
+pian		p_h iE_n
+qian		ts\_h iE_n
+mang		m AN
+ping		p_h iN
+meng		m @N
+mian		m iE_n
+miao		m iAU
+piao		p_h iAU
+ming		m iN
+qing		ts\_h iN
+peng		p_h @N
+pang		p_h AN
+nang		n AN
+neng		n @N
+nuan		n ua_n
+nian		n iE_n
+niao		n iAU
+qiao		ts\_h iAU
+luan		l ua_n
+kang		k_h AN
+ruan		z` ua_n
+seng		s @N
+keng		k_h @N
+kong		k_h UN
+sang		s AN
+kuai		k_h uaI
+kuan		k_h ua_n
+tong		t_h UN
+lang		l AN
+quan		ts\_h y{_n
+rong		z` UN
+reng		z` @N
+leng		l @N
+rang		z` AN
+lian		l iE_n
+liao		l iAU
+ling		l iN
+long		l UN
+ting		t_h iN
+tang		t_h AN
+gang		k AN
+chun		ts`_h u@_n
+chan		ts`_h a_n
+chao		ts`_h AU
+zeng		ts @N
+chen		ts`_h @_n
+chou		ts`_h @U
+chui		ts`_h uei
+cong		ts_h UN
+ceng		ts_h @N
+zang		ts AN
+cuan		ts_h ua_n
+yuan		y{_n
+yong		iUN
+dang		t AN
+ying		iN
+deng		t @N
+chai		ts`_h aI
+zhai		ts` aI
+dian		t iE_n
+bian		p iE_n
+zuan		ts ua_n
+zong		ts UN
+zhuo		ts` uo
+bang		p AN
+zhun		ts` u@_n
+zhui		ts` uei
+beng		p @N
+biao		p iAU
+zhan		ts` a_n
+zhua		ts` ua
+bing		p iN
+zhou		ts` @U
+zhen		ts` @_n
+zhei		ts` ei
+cang		ts_h AN
+zhao		ts` AU
+yang		iAN
+chuo		ts`_h uo
+diao		t iAU
+xian		s\ iE_n
+xing		s\ iN
+weng		u@N
+fang		f AN
+duan		t ua_n
+xiao		s\ iAU
+xuan		s\ y{_n
+wang		uAN
+feng		f @N
+tuan		t_h ua_n
+dong		t UN
+ding		t iN
+wen		u@_n
+tai		t_h aI
+wei		uei
+zhe		ts` 7
+pie		p_h iE_r
+tan		t_h a_n
+pin		p_h i_n
+zhu		ts` u
+tao		t_h AU
+pou		p_h @U
+qia		ts\_h ia
+qin		ts\_h i_n
+qie		ts\_h iE_r
+zhi		ts` i`
+tei		a
+wai		uaI
+wan		ua_n
+nuo		n uo
+nou		n @U
+zun		ts u@_n
+zui		ts uei
+zou		ts @U
+tui		t_h uei
+nue		a
+nun		a
+ong		a
+tuo		t_h uo
+tie		t_h iE_r
+pai		p_h aI
+pan		p_h a_n
+tun		t_h u@_n
+pao		p_h AU
+pei		p_h ei
+pen		p_h @_n
+qiu		ts\_h i@U
+qun		ts\_h y_n
+suo		s uo
+yun		y_n
+sao		s AU
+xiu		s\ i@U
+sei		a
+sen		s @_n
+zan		ts a_n
+sha		s` a
+zai		ts aI
+yue		yE_r
+san		s a_n
+xue		s\ yE_r
+she		s` 7
+you		i@U
+xun		s\ y_n
+yin		i_n
+yao		iAU
+shi		s` i`
+yan		iE_n
+zao		ts AU
+tou		t_h @U
+que		ts\_h yE_r
+rao		z` AU
+sun		s u@_n
+shu		s` u
+ran		z` a_n
+zha		ts` a
+sui		s uei
+xia		s\ ia
+sou		s @U
+ren		z` @_n
+xin		s\ i_n
+zen		ts @_n
+xie		s\ iE_r
+rou		z` @U
+zei		ts ei
+rui		z` uei
+run		z` u@_n
+ruo		z` uo
+sai		s aI
+zuo		ts uo
+miu		m i@U
+niu		n i@U
+guo		k uo
+fai		a
+fan		f a_n
+fei		f ei
+fen		f @_n
+fou		f @U
+gai		k aI
+gan		k a_n
+gao		k AU
+gei		k ei
+gen		k @_n
+gou		k @U
+gua		k ua
+gui		k uei
+gun		k u@_n
+nin		n i_n
+duo		t uo
+han		x a_n
+hao		x AU
+hei		x ei
+hen		x @_n
+hou		x @U
+hua		x ua
+hui		x uei
+hun		x u@_n
+huo		x uo
+jia		ts\ ia
+jie		ts\ iE_r
+jin		ts\ i_n
+jiu		ts\ i@U
+jue		ts\ yE_r
+eng		a
+dun		t u@_n
+kai		k_h aI
+cen		ts_h @_n
+ang		AN
+bai		p aI
+ban		p a_n
+bao		p AU
+bei		p ei
+ben		p @_n
+bie		p iE_r
+bin		p i_n
+biu		a
+bou		a
+cai		ts_h aI
+can		ts_h a_n
+cao		ts_h AU
+cei		a
+cha		ts`_h a
+dui		t uei
+che		ts`_h 7
+chi		ts`_h i`
+chu		ts`_h u
+cou		ts_h @U
+cui		ts_h uei
+cun		ts_h u@_n
+cuo		ts_h uo
+dai		t aI
+dan		t a_n
+dao		t AU
+dei		t ei
+die		t iE_r
+diu		t i@U
+dou		t @U
+jun		ts\ y_n
+hai		x aI
+kan		k_h a_n
+nai		n aI
+nao		n AU
+luo		l uo
+lan		l a_n
+men		m @_n
+lao		l AU
+lei		l ei
+nan		n a_n
+mie		m iE_r
+mei		m ei
+lun		l u@_n
+lia		l ia
+lue		a
+lie		l iE_r
+lin		l i_n
+liu		l i@U
+mou		m @U
+min		m i_n
+lou		l @U
+lai		l aI
+kua		k_h ua
+kou		k_h @U
+kuo		k_h uo
+nei		n ei
+nen		n @_n
+kun		k_h u@_n
+kao		k_h AU
+mao		m AU
+nie		n iE_r
+kei		k_h ei
+kui		k_h uei
+ken		k_h @_n
+mai		m aI
+man		m a_n
+cu		ts_h u
+po		p_h o
+ye		iE_r
+yi		i
+da		t a
+za		ts a
+yu		y
+mi		m i
+de		t 7
+me		m 7
+ci		ts_h i\
+ce		ts_h 7
+ze		ts 7
+nv		n y
+an		a_n
+ao		AU
+zu		ts u
+ba		p a
+nu		n u
+zi		ts i\
+ni		n i
+ne		n 7
+bi		p i
+bo		p o
+pi		p_h i
+ou		@U
+bu		p u
+ca		ts_h a
+pa		p_h a
+di		t i
+cl		a
+na		n a
+mu		m u
+mo		m o
+ai		aI
+pu		p_h u
+en		@_n
+qi		ts\_h i
+la		l a
+gu		k u
+ti		t_h i
+le		l 7
+te		t_h 7
+ri		z` i`
+ha		x a
+ta		t_h a
+ru		z` u
+he		x 7
+su		s u
+ya		ia
+ho		a
+si		s i\
+hu		x u
+sa		s a
+ku		k_h u
+ji		ts\ i
+se		s 7
+ju		ts\ y
+ke		k_h 7
+re		z` 7
+li		l i
+ge		k 7
+tu		t_h u
+du		t u
+xu		s\ y
+ma		m a
+lv		l y
+ei		ei
+ka		k_h a
+er		@`
+fa		f a
+xi		s\ i
+wu		u
+wo		uo
+lu		l u
+qu		ts\_h y
+fo		f o
+wa		ua
+fu		f u
+ga		k a
+o		o
+e		7
+i		i
+v		y
+u		u
+a		a

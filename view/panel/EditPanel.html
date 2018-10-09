@@ -1,14 +1,12 @@
 <style>
     .div-container-edit {
-        padding: 35px 16px;
-        margin: 0 auto;
-        width: 1000px;
+        padding: 5px 16px;
     }
 
     .div-edit-toolbar {
         display: inline-block;
         vertical-align: middle;
-        margin: 0px 10px;
+        margin: 0px 5px;
     }
 
     .div-edit-time {
@@ -22,6 +20,8 @@
         padding: 1px 5px;
         color: #fff;
         margin-bottom: 5px;
+        margin-left: 5px;
+        margin-right: 5px;
         display: inline-block;
         vertical-align: middle;
         border-radius: 3px;
@@ -124,6 +124,11 @@
             <button><i class="fa fa-pencil"></i></button>
             <button><i class="fa fa-eraser"></i></button>
         </div>
+        <div class="div-edit-toolbar div-edit-show">
+            <button>Params</button>
+            <button>Wave</button>
+            <button>Phoneme</button>
+        </div>
     </div>
     <div class="div-edit-tools" id="editpanel-edit">
         <div class="div-edit-toolbar">
@@ -134,11 +139,6 @@
             <label>Zoom:</label>
             <div class="slider" id="pianoroll-zoom-slider"></div>
             <div class="value-show zoom-show">100</div>
-        </div>
-        <div class="div-edit-toolbar div-edit-show">
-            <button>Params</button>
-            <button>Wave</button>
-            <button>Phoneme</button>
         </div>
     </div>
 </div>

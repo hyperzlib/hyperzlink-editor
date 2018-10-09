@@ -40,6 +40,25 @@ function depends(namespace, list){
 	dependList[namespace] = list;
 }
 
+var loaderMode = 0;
+if(typeof importScripts == 'function'){
+    var $ = {
+        getScript: function(url){
+            importScripts(url);
+            return {
+                done: fRun,
+                fail: function(){},
+            }
+        }
+    };
+}
+
+function fRun(callback){
+    if(typeof callback == 'function'){
+        callback();
+    }
+}
+
 function loader(useCall, target){
 	return new Promise((resolve, reject) => {
 		var _this = this;
@@ -155,25 +174,3 @@ function namespace(ns){
 	}
 	return obj;
 }
-
-var scriptsArray = [];
-$.cachedScript = function(url, options){
-	for(var s in scriptsArray){
-		if(scriptsArray[s] == url){
-			return {
-				done: function(method){
-					if (typeof method == 'function'){ //如果传入参数为一个方法 
-						method();
-					}
-				}
-			};
-		}
-	}
-	options = $.extend(options || {}, {
-		dataType: "script", 
-		url: url, 
-		cache:true
-	}); 
-	scriptsArray.push(url);
-	return $.ajax(options); 
-};

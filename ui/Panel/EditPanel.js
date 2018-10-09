@@ -1,11 +1,16 @@
 depends('ui.Panel.EditPanel', [
     'ui.Panel.Panel',
+    'events.EventEmitter',
 ]);
 
 namespace('ui.Panel').EditPanel = function(){
     var controlDom;
     var editDom;
     var zoomSilder, zoomShow;
+    var eventEmitter = new events.EventEmitter();
+
+    this.on = eventEmitter.on;
+    this.off = eventEmitter.off;
     this.buttons = {};
     this.dom;
 
@@ -27,8 +32,10 @@ namespace('ui.Panel').EditPanel = function(){
         var zoomSilder = this.dom.find('#pianoroll-zoom-slider');
         zoomShow = zoomSilder.next('.zoom-show');
         zoomSilder.on('slide', function(event, ui){
-            console.log(ui.value);
             zoomShow.text(ui.value);
+        });
+        zoomSilder.on('slidestop', function(event, ui){
+            eventEmitter.emit('zoomchange', ui.value);
         });
     }
 
