@@ -7,6 +7,19 @@ function getBasename(path){
 	return path.substr(i + 1, path.length - i);
 }
 
+function arrcmp(arr1, arr2){
+    if(typeof arr1 == 'number' && arr1 == arr2.length){
+        return true;
+    } else if(arr1.length == arr2.length){
+        for(var i = 0; i < arr1.length; i ++){
+            if(arr1[i] && arr1[i] != arr2[i]) return false;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function isClassExists(cname){
 	var t;
 	var subList = cname.split('.');
@@ -31,6 +44,14 @@ function isClassExists(cname){
 	} else {
 		return false;
 	}
+}
+
+function foreach(arr, callback){
+    for(var key in arr){
+        if(callback(arr[key], key, arr) === false){
+            break;
+        }
+    }
 }
 
 var baseDir = getBaseDir();
@@ -173,4 +194,72 @@ function namespace(ns){
 		}
 	}
 	return obj;
+}
+
+//类的继承
+function extend(father, child){
+    var Super = function(){};
+    var Template = function(){
+        father.call(this);
+        child.call(this);
+    };
+    Super.prototype = child.prototype;
+    Template.prototype = new Super();
+    Super.prototype = father.prototype;
+    Template.prototype = new Super();
+    return Template;
+}
+
+//函数重载
+function overload(...funcs){
+    for(var i in funcs){
+        if(typeof funcs[i] == 'function'){
+            var func = funcs[i];
+            var f = func.toString();
+            var argv = f.substring(f.indexOf('(') + 1, f.indexOf(')')).split(',');
+            var baseType = [];
+            argv.forEach((val) => {
+                val = val.trim();
+                if(val.indexOf('_') != -1){
+                    switch(val.substring(0, val.indexOf('_'))){
+                        case 's': case 'str': case 'string':
+                            baseType.push('string');
+                            break;
+                        case 'i': case 'int': case 'float': case 'double': case 'n': case 'num': case 'number':
+                            baseType.push('number');
+                            break;
+                        case 'a': case 'arr': case 'array': case 'o': case 'obj': case 'object':
+                            baseType.push('object');
+                            break;
+                        case 'b': case 'bool': case 'boolean':
+                            baseType.push('boolean');
+                            break;
+                        case 'f': case 'func': case 'function':
+                            baseType.push('function');
+                            break;
+                    }
+                } else {
+                    baseType.push(undefined);
+                }
+            });
+            funcs[i] = [baseType, func];
+        }
+    }
+    return function(...args){
+        var typeList = [];
+        args.forEach((val) => {
+            typeList.push(typeof val);
+        });
+        var finalFunc;
+        foreach(funcs, (val) => {
+            if(arrcmp(val[0], typeList)){
+                finalFunc = val[1];
+            }
+        });
+        if(typeof finalFunc == 'function'){
+            return finalFunc(...args);
+        } else {
+            throw "Cannot detect overloaded function";
+        }
+    };
 }

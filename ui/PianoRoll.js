@@ -1,8 +1,11 @@
 depends('ui.PianoRoll', [
 	'ui.Utils',
+	'events.EventEmitter'
 ]);
 
 namespace('ui').PianoRoll = function(dom, width, height){
+    var eventEmitter = new events.EventEmitter();
+    
 	var noteList;
 	var pianoKeys;
 	var headerPanel;
@@ -13,6 +16,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	var timeLine;
 	var singerThumb;
 	var singerThumbImg;
+	var noteListScroll;
 
 	var lastPopupLabel = '';
 	var lastNotePos = 0;
@@ -20,16 +24,31 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	var lastScroll = 0;*/
 	var subNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 	
+	this.currentTool = 0;
+	this.toolsId = {
+	    cursor: 0,
+	    pencil: 1,
+	    eraser: 2,
+	};
+	
+	this.on = eventEmitter.on;
+	this.off = eventEmitter.off;
 	this.root = $(dom);
 	this.width = width;
 	this.height = height;
 	this.beatWidth = 55;
+
+	this.cursors = {
+		cursor: 'default',
+		pencil: 'url("res/pencil.png") 2 18, crosshair'
+	};
 	
 	this.scales = 5;
 	this.beatLength = 4;
 	this.measureLength = 4;
 	this.oneHeight = 15;
 	this.pianoNoteWidth = 80;
+	this.resolution = 480;
 	this.zoom = 100;
 	this.color = {
 		whiteKey: '#fbfbfb',
@@ -66,6 +85,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	this.setZoom = function(zoom){
 		this.zoom = zoom;
 		this.drawNoteBg();
+		this.drawTimeLine();
 	}
 	
 	this.setBeat = function(beat, measure){
@@ -100,14 +120,19 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		singerThumbImg = singerThumb.append('<img style="display: none"></img>').find('img:first');
 		headerPanel.css({display: 'inline-block', float: 'left'});
 		timeLine.css({display: 'inline-block'});
-		var _this = this;
+		this.bindEvents();
+		this.update();
+	};
+	
+	this.bindEvents = function(){
+	    var _this = this;
 		noteListContainer.mousemove(function(e){
-			lastMouseY = e.offsetY;
-			_this.updatePopup(e.offsetY);
+		    _this.onMouseMove(e);
 		});
 		var lastXPos = 0;
 		var lastYPos = 0;
-		noteListContainer.css({display: 'inline-block', overflow: 'scroll', width: this.width - this.pianoNoteWidth, height: this.height - (this.oneHeight * 4)}).scroll(function(){
+		noteListContainer.css({display: 'inline-block', overflow: 'scroll', width: this.width - this.pianoNoteWidth, height: this.height - (this.oneHeight * 4)});
+		noteListContainer.scroll(function(){
 			var xPos = $(this).scrollLeft();
 			var yPos = $(this).scrollTop();
 			if(xPos != lastXPos){
@@ -122,7 +147,20 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				lastYPos = yPos;
 			}
 		});
-		this.update();
+	};
+
+	this.onMouseMove = function(e){
+		//update popup
+		lastMouseY = e.offsetY;
+		this.updatePopup(e.offsetY);
+		//update current position
+		var baseWidth = this.beatWidth * this.zoom / 100;
+		var mouseX = e.offsetX;
+		var beatPos = Math.floor(mouseX / baseWidth);
+		var measurePos = Math.floor(beatPos / this.beatLength);
+		var beatPos = beatPos % this.beatLength;
+		var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution / 5) * 5;
+		eventEmitter.emit('position', measurePos, beatPos, ticket);
 	};
 	
 	this.update = function(){
@@ -367,6 +405,28 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				keyPopup.text(label);
 				lastPopupLabel = label;
 			}
+		}
+	};
+
+	this.setCursor = function(name){
+		if(this.cursors[name] != undefined){
+			noteListContainer.css('cursor', this.cursors[name]);
+		} else {
+			noteListContainer.css('cursor', 'auto');
+		}
+	};
+	
+	this.setTool = function(tool){
+	    if(typeof tool == 'number'){
+	        this.currentTool = tool
+	    } else {
+	        if(this.toolsId[tool] != undefined){
+	            this.currentTool = this.toolsId[tool];
+	        }
+		}
+		switch(this.currentTool){
+			case 0:
+
 		}
 	};
 	

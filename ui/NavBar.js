@@ -1,5 +1,10 @@
+depends('ui.NavBar', [
+    'events.EventEmitter',
+]);
+
 namespace('ui').NavBar = function(dom){
     //! private
+    var emitter = new events.EventEmitter();
     var navList = {};
     var nameList = {};
     var panelList = {};
@@ -13,6 +18,8 @@ namespace('ui').NavBar = function(dom){
     var autoLaunch = null;
 
     //! public
+    this.on = emitter.on;
+    this.off = emitter.off
     this.panels = {};
     this.root = $(dom);
     this.height = 200;
@@ -47,9 +54,14 @@ namespace('ui').NavBar = function(dom){
         this.update();
     };
     
-    this.update = function(){
+    this.update = function(updatePanel){
         this.updateTags();
-        styleElement.html(this.getCss());
+        //styleElement.html(this.getCss());
+        tabTempPanel.css({height: this.height - this.getRealBannerHeight() - 8});
+        this.root.css({height: this.height});
+        if(updatePanel !== false && activePanel != null && typeof panelList[activePanel] != 'undefined'){
+            panelList[activePanel].setWidth(this.width);
+        }
     };
 
     this.updateTags = function(){
@@ -57,7 +69,7 @@ namespace('ui').NavBar = function(dom){
     };
     
     this.setHeight = function(height){
-        this.height = height;
+        this.height = height + 6;
         this.update();
     };
     
@@ -144,10 +156,19 @@ namespace('ui').NavBar = function(dom){
             autoLaunch.find('a').click();
             autoLaunch = null;
         }
+        var _this = this;
+        panel.on('height', function(h){
+            if(name == activePanel){
+                _this.height = h + _this.getRealBannerHeight() + 6;
+                _this.update(false);
+                emitter.emit('height', h);
+            }
+        });
     };
 
     this.unbindPanel = function(name){
         if(typeof panelList[name] != 'undefined'){
+            panelList[name].off('height');
             delete panelList[name];
         }
     };

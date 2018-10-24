@@ -28,4 +28,59 @@ namespace('ui').Utils = {
 		}
 		return ret;
 	},
+	sCurve: function(x1, y1, x2, y2){
+	    var reverse = false;
+	    if(y1 < y2){
+	        reverse = true;
+	    }
+	    var xLen = Math.max(x1, x2) - Math.min(x1, x2);
+	    var yLen = Math.max(y1, y2) - Math.min(y1, y2);
+	    var fix = Math.min(y1, y2);
+	    var A = yLen / 2;
+	    var w = Math.PI / xLen;
+	    var sai = reverse ? Math.PI : 0;
+	    var ret = new Int32Array(xLen);
+	    for(var i = 0; i < xLen; i ++){
+	        ret[i] = A * Math.cos(w * i + sai) + A + fix;
+	    }
+	    return ret;
+	},
+	rCurve: function(x1, y1, x2, y2){
+	    var reverse = false;
+	    var fix = Math.min(y1, y2);
+	    var xLen = Math.max(x1, x2) - Math.min(x1, x2);
+	    var yLen = Math.max(y1, y2) - Math.min(y1, y2);
+	    if(y1 > y2){
+	        reverse = true;
+	    } else {
+	        fix -= yLen;
+	    }
+	    var A = yLen / 2;
+	    var w = Math.PI / xLen / 2;
+	    var sai = reverse ? Math.PI : 0;
+	    var ret = new Int32Array(xLen);
+	    for(var i = 0; i < xLen; i ++){
+	        ret[i] = yLen * Math.sin(w * i + sai) + yLen + fix;
+	    }
+	    return ret;
+	},
+	jCurve: function(x1, y1, x2, y2){
+	    var reverse = false;
+	    var fix = Math.min(y1, y2);
+	    var xLen = Math.max(x1, x2) - Math.min(x1, x2);
+	    var yLen = Math.max(y1, y2) - Math.min(y1, y2);
+	    if(y1 < y2){
+	        reverse = true;
+	    } else {
+	        fix -= yLen;
+	    }
+	    var A = yLen / 2;
+	    var w = Math.PI / xLen / 2;
+	    var sai = reverse ? Math.PI : 0;
+	    var ret = new Int32Array(xLen);
+	    for(var i = 0; i < xLen; i ++){
+	        ret[i] = yLen * Math.cos(w * i + sai) + yLen + fix;
+	    }
+	    return ret;
+	},
 };

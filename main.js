@@ -10,7 +10,7 @@ loader((use) => {
     navBar = new this.NavBar('#divNavBar');
     pianoRoll = new this.PianoRoll('#divPianoRoll');
     editPanel = new this.EditPanel();
-    pianoRoll.setThumb('res/thumb.png');
+    //pianoRoll.setThumb('res/thumb.png');
     $(window).resize(function(){
         var width = $(window).width();
         var height = $(window).height();
@@ -18,6 +18,11 @@ loader((use) => {
         height -= heightMenuBar;
         height -= navBar.getHeight();
         pianoRoll.setWidth(width);
+    });
+    navBar.on('height', function(h){
+        var height = $(window).height();
+        height -= heightMenuBar;
+        height -= navBar.getHeight();
         pianoRoll.setHeight(height);
     });
     $(window).resize();
@@ -36,6 +41,18 @@ loader((use) => {
     menuBar.addNav('synthetize', 'Synthetize', 'R');
     menuBar.addNav('setting', 'Setting', 'S');
     menuBar.addNav('help', 'Help', 'H');
+    
+    editPanel.on(true, (...args) => {console.log(args)});
+
+    function fillZero(number, length){
+        var str = number.toString();
+        var repeatLen = length - str.length;
+        return '0'.repeat(repeatLen) + str;
+    }
+
+    pianoRoll.on('position', function(measurePos, beatPos, ticket){
+        editPanel.setValue('nowPos', (measurePos + 1) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
+    });
 }).catch((e) => {
     console.log(e);
 });

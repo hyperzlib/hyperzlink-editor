@@ -54,5 +54,12 @@ namespace('events').EventEmitter = function(){
                 }
             });
         }
+        if(name !== true){
+            if(fArgs == undefined){
+                this.emit(true, name);
+            } else {
+                this.emit(true, name, ...fArgs);
+            }
+        }
     };
 };

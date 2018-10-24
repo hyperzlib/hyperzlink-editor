@@ -6,7 +6,15 @@
     .div-edit-toolbar {
         display: inline-block;
         vertical-align: middle;
-        margin: 0px 5px;
+        margin: 3px 5px;
+    }
+    
+    .div-edit-timeline {
+        margin-left: calc((100% - 1200px) / 2);
+    }
+    
+    .div-edit-tools {
+        margin-left: calc((100% - 650px) / 2);
     }
 
     .div-edit-time {
@@ -19,9 +27,7 @@
         background: linear-gradient(to bottom,  #222222 0%,#7d7b7c 100%);
         padding: 1px 5px;
         color: #fff;
-        margin-bottom: 5px;
-        margin-left: 5px;
-        margin-right: 5px;
+        margin: 5px;
         display: inline-block;
         vertical-align: middle;
         border-radius: 3px;
@@ -42,6 +48,7 @@
     .div-edit-time .time-digi {
         font-family: digifac;
         font-size: 25px;
+        letter-spacing: 1px;
         margin-top: -5px;
     }
 
@@ -82,52 +89,62 @@
         padding-top: 3px;
         padding-bottom: 3px;
     }
+    
+    .div-edit-toolbar .ui-checkboxradio-icon {
+        display: none;
+    }
 </style>
 <div class="div-container-edit" id="editpanel">
     <div class="div-edit-timeline" id="editpanel-time">
-        <div class="div-edit-toolbar">
-            <button><i class="fa fa-play"></i></button>
-            <button><i class="fa fa-stop"></i></button>
-            <button><i class="fa fa-step-backward"></i></button>
-            <button><i class="fa fa-backward"></i></button>
-            <button><i class="fa fa-forward"></i></button>
-            <button><i class="fa fa-step-forward"></i></button>
+        <div class="div-edit-toolbar" id="div-edit-control">
+            <button id="btn-editctrl-play"><i class="fa fa-play"></i></button>
+            <button id="btn-editctrl-stop"><i class="fa fa-stop"></i></button>
+            <button id="btn-editctrl-home"><i class="fa fa-step-backward"></i></button>
+            <button id="btn-editctrl-left"><i class="fa fa-backward"></i></button>
+            <button id="btn-editctrl-right"><i class="fa fa-forward"></i></button>
+            <button id="btn-editctrl-end"><i class="fa fa-step-forward"></i></button>
         </div>
-        <div class="div-edit-time">
-            <div class="time-group">
+        <div class="div-edit-time" id="div-edit-time">
+            <div class="time-group time-now-pos">
                 <div class="time-info">NOW POS</div>
                 <div class="time-digi">1:1:000</div>
             </div>
-            <div class="time-group">
+            <div class="time-group time-tempo">
                 <div class="time-info">TEMPO</div>
                 <div class="time-digi">120</div>
             </div>
-            <div class="time-group">
+            <div class="time-group time-beat">
                 <div class="time-info">BEAT</div>
                 <div class="time-digi">4/4</div>
             </div>
-            <div class="time-group">
+            <div class="time-group time-cursor">
                 <div class="time-info">CURSOR</div>
                 <div class="time-digi">1:1:000</div>
             </div>
-            <div class="time-group">
+            <div class="time-group time-quantize">
                 <div class="time-info">QUANTIZE</div>
                 <div class="time-digi">1/64</div>
             </div>
-            <div class="time-group">
+            <div class="time-group time-length">
                 <div class="time-info">LENGTH</div>
                 <div class="time-digi">1/64</div>
             </div>
         </div>
-        <div class="div-edit-toolbar">
-            <button><i class="fa fa-mouse-pointer"></i></button>
-            <button><i class="fa fa-pencil"></i></button>
-            <button><i class="fa fa-eraser"></i></button>
+        <div class="div-edit-toolbar" id="div-edit-tools">
+            <label for="btn-edit-point" data-id="point"><i class="fa fa-mouse-pointer"></i></label>
+            <input type="radio" name="actived-tool" id="btn-edit-point" checked>
+            <label for="btn-edit-pencil" data-id="pencil"><i class="fa fa-pencil"></i></label>
+            <input type="radio" name="actived-tool" id="btn-edit-pencil">
+            <label for="btn-edit-eraser" data-id="eraser"><i class="fa fa-eraser"></i></label>
+            <input type="radio" name="actived-tool" id="btn-edit-eraser">
         </div>
-        <div class="div-edit-toolbar div-edit-show">
-            <button>Params</button>
-            <button>Wave</button>
-            <button>Phoneme</button>
+        <div class="div-edit-toolbar div-edit-show" id="div-edit-show">
+            <label for="btn-editshow-params">Params</label>
+            <input type="checkbox" id="btn-editshow-params">
+            <label for="btn-editshow-wave">Wave</label>
+            <input type="checkbox" id="btn-editshow-wave">
+            <label for="btn-editshow-phonme">Phonme</label>
+            <input type="checkbox" id="btn-editshow-phonme">
         </div>
     </div>
     <div class="div-edit-tools" id="editpanel-edit">
@@ -138,7 +155,7 @@
         <div class="div-edit-toolbar">
             <label>Zoom:</label>
             <div class="slider" id="pianoroll-zoom-slider"></div>
-            <div class="value-show zoom-show">100</div>
+            <input class="form-control zoom-show" value="100" />
         </div>
     </div>
 </div>
