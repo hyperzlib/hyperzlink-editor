@@ -1,6 +1,6 @@
 function VDB(dbname, baseUrl){
-	var db;
-	
+    var db;
+    
     this.db;
     this.baseUrl = baseUrl;
     
@@ -78,64 +78,64 @@ function VDB(dbname, baseUrl){
                 if(data == undefined){
                     //全部网络加载
                     this.downloadChunk(this.getUrl(filename), start, length).then((ret) => {
-						this.saveChunk(filename, start, ret);
+                        this.saveChunk(filename, start, ret);
                         resolve(ret);
                     });
                 } else {
-					var chunkList = this.getChunkList(data.chunks, start, length);
-					var chunks = new Array(chunkList.length);
-					
-					function onEnd(){
-						//合并数据块
-						var buffer = new ArrayBuffer(length);
-						var view = new Uint8Array(buffer);
-						var nowLen = 0;
-						chunks.forEach((content, key) => {
-							view.set(new Uint8Array(content), nowLen);
-							nowLen += content.byteLength;
-							delete chunks[key];
-						});
-						resolve(buffer);
-					}
-					
-					function onChunk(id, data){
-						chunks[id] = data;
-						if(chunks.length == chunkList.length){
-							onEnd();
-						}
-					}
-					
-					chunkList.forEach((cdata, key) => {
-						if(cdata.cached == true){
-							//从数据库加载
-							this.getCachedChunk(cdata.id, cdata.length).then((ret) => {
-								onChunk(key, ret);
-							});
-						} else {
-							//从网络加载
-							this.downloadChunk(this.getUrl(filename), cdata.start, cdata.length).then((ret) => {
-								this.saveChunk(filename, cdata.start, ret);
-								onChunk(key, ret);
-							});
-						}
-					});
-				}
+                    var chunkList = this.getChunkList(data.chunks, start, length);
+                    var chunks = new Array(chunkList.length);
+                    
+                    function onEnd(){
+                        //合并数据块
+                        var buffer = new ArrayBuffer(length);
+                        var view = new Uint8Array(buffer);
+                        var nowLen = 0;
+                        chunks.forEach((content, key) => {
+                            view.set(new Uint8Array(content), nowLen);
+                            nowLen += content.byteLength;
+                            delete chunks[key];
+                        });
+                        resolve(buffer);
+                    }
+                    
+                    function onChunk(id, data){
+                        chunks[id] = data;
+                        if(chunks.length == chunkList.length){
+                            onEnd();
+                        }
+                    }
+                    
+                    chunkList.forEach((cdata, key) => {
+                        if(cdata.cached == true){
+                            //从数据库加载
+                            this.getCachedChunk(cdata.id, cdata.length).then((ret) => {
+                                onChunk(key, ret);
+                            });
+                        } else {
+                            //从网络加载
+                            this.downloadChunk(this.getUrl(filename), cdata.start, cdata.length).then((ret) => {
+                                this.saveChunk(filename, cdata.start, ret);
+                                onChunk(key, ret);
+                            });
+                        }
+                    });
+                }
             });
         });
     };
-	
-	this.getCachedChunk = async function(chunkid, length){
-		var data = await db.file.get(chunkid)
-		if(data !== undefined){
-			if(length !== undefined && data.content.byteLength != length){
-				return data.content.slice(0, length);
-			} else {
-				return data.content;
-			}
-		} else {
-			return {code: 1001, message: 'chunk not exists'};
-		}
-	};
+    
+    this.getCachedChunk = async function(chunkid, length){
+        var data = await db.file.get(chunkid)
+        if(data !== undefined){
+            if(length !== undefined && data.content.byteLength != length){
+                return data.content.slice(0, length);
+            } else {
+                return data.content;
+            }
+        } else {
+            return {code: 1001, message: 'chunk not exists'};
+        }
+    };
     
     this.getUrl = function(filename){
         return this.baseUrl + filename;
@@ -191,7 +191,7 @@ function VDB(dbname, baseUrl){
             map: '++fileid, filename, chunks',
             file: '++chunkid, content',
         });
-		this.db = db;
+        this.db = db;
     };
     
     this.init(dbname);
