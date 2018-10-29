@@ -26,6 +26,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	
 	this.currentTool = 0;
 	this.toolsId = {
+		point: 0,
 	    cursor: 0,
 	    pencil: 1,
 	    eraser: 2,
@@ -50,6 +51,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	this.pianoNoteWidth = 80;
 	this.resolution = 480;
 	this.zoom = 100;
+	this.quantize = 16;
+	this.quantizeLen = 16;
 	this.color = {
 		whiteKey: '#fbfbfb',
 		blackKey: '#7d7b7c',
@@ -80,20 +83,30 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		timeLine.attr('width', width - this.pianoNoteWidth);
 		this.updateTimeLine();
 		noteListContainer.width(width - this.pianoNoteWidth);
-	}
+	};
 	
 	this.setZoom = function(zoom){
 		this.zoom = zoom;
 		this.drawNoteBg();
 		this.drawTimeLine();
-	}
+	};
 	
 	this.setBeat = function(beat, measure){
 		this.beatLength = beat;
 		this.measureLength = measure;
 		this.drawNoteBg();
 		this.drawTimeLine();
-	}
+	};
+	
+	this.setQuantize = function(quantize){
+		this.quantize = quantize;
+		eventEmitter.emit('quantize', this.quantize, this.quantizeLen);
+	};
+	
+	this.setQuantizeLen = function(quantize){
+		this.quantizeLen = quantize;
+		eventEmitter.emit('quantize', this.quantize, this.quantizeLen);
+	};
 
 	this.setThumb = function(url){
 		if(url === false){
@@ -147,6 +160,21 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				lastYPos = yPos;
 			}
 		});
+		timeLine.click(function(e){
+			var y = e.offsetY;
+			if(y < _this.oneHeight * 2){
+				console.log('change pos');
+			}
+		}).dblclick(function(e){
+			var y = e.offsetY;
+			if(y < _this.oneHeight * 2){
+				//pass
+			} else if(y < _this.oneHeight * 3){
+				console.log('change tempo');
+			} else if(y < _this.oneHeight * 4){
+				console.log('change beat');
+			}
+		});
 	};
 
 	this.onMouseMove = function(e){
@@ -159,7 +187,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		var beatPos = Math.floor(mouseX / baseWidth);
 		var measurePos = Math.floor(beatPos / this.beatLength);
 		var beatPos = beatPos % this.beatLength;
-		var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution / 5) * 5;
+		var grid = this.resolution / this.quantize;
+		var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution / grid * grid);
 		eventEmitter.emit('position', measurePos, beatPos, ticket);
 	};
 	
@@ -376,10 +405,25 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			}
 		}
 	};
+	
+	//量化
+	this.doQuantize = function(val, quantize){
+		
+	};
 
 	//根据鼠标位置获取音符
-	this.getNoteNum = function(height){
+	this.getMouseNoteNum = function(height){
 		return this.scales * 12 - Math.floor(height / this.oneHeight) - 1;
+	};
+	
+	this.getMouseTicket = function(xPos){
+		var tik = Math.round(xPos / this.beatWidth * this.zoom / 100 * this.resolution);
+		//做量化
+		return tik;
+	};
+	
+	this.getPixelTickte = function(tik){
+		return Math.round(tik * this.beatWidth * this.zoom / 100 / this.resolution);
 	};
 
 	//根据音的数字获取音符标签
@@ -388,10 +432,23 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		var sub = nIndex % 12;
 		var subName = subNames[sub];
 		return subName + scale.toString();
-	}
+	};
+	
+	this.getTicket = overload((measure, beat, tik) => {
+		var ret = measure * this.beatLength * this.resolution;
+		ret += beat * this.resolution;
+		ret += tik;
+		return ret;
+	}, (ticket) => {
+		var beat = Math.floor(ticket / this.resolution);
+		var measure = Math.floor(beat / this.measureLength);
+		if(measure != 0) beat = beat % measure;
+		ticket = ticket % this.resolution;
+		return [measure, beat, ticket];
+	});
 	
 	this.updatePopup = function(height){
-		var nIndex = this.getNoteNum(height);
+		var nIndex = this.getMouseNoteNum(height);
 		var label = this.getNoteLabel(nIndex);
 		var sPos = (this.scales * 12 - 1 - nIndex) * this.oneHeight - 2;
 		var keyPopupPos = noteListContainer.offset().top - noteListContainer.scrollTop() + sPos;
@@ -426,9 +483,19 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		}
 		switch(this.currentTool){
 			case 0:
-
+				this.setCursor('cursor');
+				break;
+			case 1:
+				this.setCursor('pencil');
+				break;
 		}
 	};
+	
+	this.setPos = overload((position) => {
+		console.log(position);
+	}, (measure, beat, pos) => {
+		this.setPos(this.getTicket(measure, beat, pos));
+	});
 	
 	this.init();
 };
