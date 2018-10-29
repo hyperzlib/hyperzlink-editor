@@ -17,6 +17,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	var singerThumb;
 	var singerThumbImg;
 	var noteListScroll;
+	var timeLinePoint;
 
 	var lastPopupLabel = '';
 	var lastNotePos = 0;
@@ -68,7 +69,9 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		timeLineText: '#939393',
 		bgAlpha: 0.65,
 		noteListBg: '#ffffff',
+		timeLinePoint: '#009933',
 	};
+	this.position = 0;
 	
 	this.setHeight = function(height){
 		this.height = height;
@@ -118,6 +121,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	};
 	
 	this.init = function(){
+		var _this = this;
 		this.root.css({top: "0px", left: "0px", width: this.width, height: this.height, overflow: 'hidden'});
 		headerPanel = this.root.append('<div class="div-piano-header"><canvas class="canvas-piano-timeline-header"></canvas><div class="div-piano-note"></div></div>').find(".div-piano-header:first");
 		timeLineHeader = headerPanel.find(".canvas-piano-timeline-header:first");
@@ -128,11 +132,13 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		keyPopup = this.root.append('<div class="div-piano-key-popup"><div class="div-piano-notelist"></div></div>').find(".div-piano-key-popup:first");
 		noteList = noteListContainer.find('.div-piano-notelist:first');
 		singerThumb = noteListContainer.find('.div-piano-singer-thumb:first');
-		noteList.css({zIndex: '10'});
+		timeLinePoint = noteList.append('<div class="div-timeline-pointer"></div>').find('.div-timeline-pointer:first');
+		noteList.css({zIndex: 10});
 		singerThumb.css({position: 'absolute', zIndex: -1});
 		singerThumbImg = singerThumb.append('<img style="display: none"></img>').find('img:first');
 		headerPanel.css({display: 'inline-block', float: 'left'});
 		timeLine.css({display: 'inline-block'});
+		timeLinePoint.css({position: 'relative', display: 'inline-block', zIndex: 50, width: 2, backgroundColor: this.color.timeLinePoint, overflow: 'hidden'});
 		this.bindEvents();
 		this.update();
 	};
@@ -164,6 +170,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			var y = e.offsetY;
 			if(y < _this.oneHeight * 2){
 				console.log('change pos');
+				_this.setPos(_this.getMouseTicket(_this.getLeft() + e.offsetX));
 			}
 		}).dblclick(function(e){
 			var y = e.offsetY;
@@ -173,6 +180,22 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				console.log('change tempo');
 			} else if(y < _this.oneHeight * 4){
 				console.log('change beat');
+			}
+		});
+		timeLineHeader.click(function(e){
+			var y = e.offsetY;
+			if(y < _this.oneHeight * 2){
+				console.log('change pos');
+				_this.setPos(_this.getMouseTicket(_this.getLeft()));
+			}
+		}).dblclick(function(e){
+			var y = e.offsetY;
+			if(y < _this.oneHeight * 2){
+				//pass
+			} else if(y < _this.oneHeight * 3){
+				console.log('change global tempo');
+			} else if(y < _this.oneHeight * 4){
+				console.log('change global beat');
 			}
 		});
 	};
@@ -188,7 +211,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		var measurePos = Math.floor(beatPos / this.beatLength);
 		var beatPos = beatPos % this.beatLength;
 		var grid = this.resolution / this.quantize;
-		var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution / grid * grid);
+		var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution);
+		ticket = ticket - ticket % grid;
 		eventEmitter.emit('position', measurePos, beatPos, ticket);
 	};
 	
@@ -207,7 +231,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		this.drawPianoNotes();
 		this.drawTimeLine();
 		this.drawNoteBg();
-		noteListContainer.css({height: (this.height - (this.oneHeight * 4)) + 'px'})
+		noteListContainer.css({height: (this.height - (this.oneHeight * 4)) + 'px'});
+		timeLinePoint.css({height: 5 * 12 * this.oneHeight});
 		noteList.css({width: '10000px'});
 		noteList.height(5 * 12 * this.oneHeight);
 	};
@@ -387,6 +412,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 
 	this.updateTimeLine = function(){
 		if(this.width != undefined){
+			//画时间分隔线
 			var noteListPos = noteListContainer.scrollLeft();
 			var measureWidth = Math.floor(this.beatWidth * this.zoom / 100) * this.beatLength;
 			var xPos = noteListPos % measureWidth;
@@ -403,12 +429,25 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			for(var i = 0; i < endIndex; i ++){
 				ctx.fillText(startIndex + i + 1, startPos + (i * measureWidth), yPos);
 			}
+			//画当前时间线
+			//计算时间线在屏幕上的位置
+			var xPos = this.getPixelTickte(this.ticket) - this.getLeft();
+			if(xPos > 0 && xPos <= width){
+				xPos -= 1;
+				ctx.fillStyle = this.color.timeLinePoint;
+				//画圆点
+			}
 		}
 	};
 	
 	//量化
 	this.doQuantize = function(val, quantize){
-		
+		return val - val % quantize;
+	};
+	
+	//获取左侧折叠部分长度
+	this.getLeft = function(){
+		return noteListContainer.scrollLeft();
 	};
 
 	//根据鼠标位置获取音符
@@ -493,6 +532,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	
 	this.setPos = overload((position) => {
 		console.log(position);
+		this.position = position;
 	}, (measure, beat, pos) => {
 		this.setPos(this.getTicket(measure, beat, pos));
 	});
