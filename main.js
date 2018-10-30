@@ -49,9 +49,13 @@ loader((use) => {
         var repeatLen = length - str.length;
         return '0'.repeat(repeatLen) + str;
     }
-
-    pianoRoll.on('position', function(measurePos, beatPos, ticket){
+	
+	pianoRoll.on('position.cursor', function(measurePos, beatPos, ticket){
         editPanel.setValue('cursor', (measurePos + 1) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
+    });
+
+    pianoRoll.on('position.now', function(measurePos, beatPos, ticket){
+        editPanel.setValue('nowPos', (measurePos + 1) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
     });
 	
 	editPanel.on('zoomchange', (zoom) => {

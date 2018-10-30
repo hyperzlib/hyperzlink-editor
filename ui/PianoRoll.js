@@ -121,7 +121,6 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	};
 	
 	this.init = function(){
-		var _this = this;
 		this.root.css({top: "0px", left: "0px", width: this.width, height: this.height, overflow: 'hidden'});
 		headerPanel = this.root.append('<div class="div-piano-header"><canvas class="canvas-piano-timeline-header"></canvas><div class="div-piano-note"></div></div>').find(".div-piano-header:first");
 		timeLineHeader = headerPanel.find(".canvas-piano-timeline-header:first");
@@ -138,15 +137,15 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		singerThumbImg = singerThumb.append('<img style="display: none"></img>').find('img:first');
 		headerPanel.css({display: 'inline-block', float: 'left'});
 		timeLine.css({display: 'inline-block'});
-		timeLinePoint.css({position: 'relative', display: 'inline-block', zIndex: 50, width: 2, backgroundColor: this.color.timeLinePoint, overflow: 'hidden'});
+		timeLinePoint.css({position: 'relative', display: 'inline-block', zIndex: 50, width: 2, backgroundColor: this.color.timeLinePoint, left: -1, overflow: 'hidden'});
 		this.bindEvents();
 		this.update();
 	};
 	
 	this.bindEvents = function(){
 	    var _this = this;
-		noteListContainer.mousemove(function(e){
-		    _this.onMouseMove(e);
+		noteListContainer.mousemove((e) => {
+		    this.onMouseMove(e);
 		});
 		var lastXPos = 0;
 		var lastYPos = 0;
@@ -166,35 +165,47 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				lastYPos = yPos;
 			}
 		});
-		timeLine.click(function(e){
+		
+		var isDrag = false;
+		timeLine.mousedown((e) => {
 			var y = e.offsetY;
-			if(y < _this.oneHeight * 2){
-				console.log('change pos');
-				_this.setPos(_this.getMouseTicket(_this.getLeft() + e.offsetX));
+			if(y < this.oneHeight * 2){
+				this.setPos(this.getMouseTicket(this.getLeft() + e.offsetX));
+				isDrag = true;
 			}
-		}).dblclick(function(e){
+		}).mousemove((e) => {
+			if(isDrag){
+				this.setPos(this.getMouseTicket(this.getLeft() + e.offsetX));
+			}
+			return false;
+		}).mouseup((e) => {
+			if(isDrag){
+				this.setPos(this.getMouseTicket(this.getLeft() + e.offsetX));
+				isDrag = false;
+			}
+		}).dblclick((e) => {
 			var y = e.offsetY;
-			if(y < _this.oneHeight * 2){
+			if(y < this.oneHeight * 2){
 				//pass
-			} else if(y < _this.oneHeight * 3){
+			} else if(y < this.oneHeight * 3){
 				console.log('change tempo');
-			} else if(y < _this.oneHeight * 4){
+			} else if(y < this.oneHeight * 4){
 				console.log('change beat');
 			}
 		});
-		timeLineHeader.click(function(e){
+		
+		timeLineHeader.click((e) => {
 			var y = e.offsetY;
-			if(y < _this.oneHeight * 2){
-				console.log('change pos');
-				_this.setPos(_this.getMouseTicket(_this.getLeft()));
+			if(y < this.oneHeight * 2){
+				this.setPos(this.getMouseTicket(this.getLeft()));
 			}
-		}).dblclick(function(e){
+		}).dblclick((e) => {
 			var y = e.offsetY;
-			if(y < _this.oneHeight * 2){
+			if(y < this.oneHeight * 2){
 				//pass
-			} else if(y < _this.oneHeight * 3){
+			} else if(y < this.oneHeight * 3){
 				console.log('change global tempo');
-			} else if(y < _this.oneHeight * 4){
+			} else if(y < this.oneHeight * 4){
 				console.log('change global beat');
 			}
 		});
@@ -213,7 +224,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		var grid = this.resolution / this.quantize;
 		var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution);
 		ticket = ticket - ticket % grid;
-		eventEmitter.emit('position', measurePos, beatPos, ticket);
+		eventEmitter.emit('position.cursor', measurePos, beatPos, ticket);
 	};
 	
 	this.update = function(){
@@ -431,11 +442,18 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			}
 			//画当前时间线
 			//计算时间线在屏幕上的位置
-			var xPos = this.getPixelTickte(this.ticket) - this.getLeft();
-			if(xPos > 0 && xPos <= width){
-				xPos -= 1;
+			var xPos = this.getPixelTickte(this.position) - this.getLeft();
+			if(xPos >= 0 && xPos <= width){
+				//xPos += 1;
+				yPos = this.oneHeight / 2 + 3;
+				ctx.strokeStyle = this.color.timeLinePoint;
 				ctx.fillStyle = this.color.timeLinePoint;
 				//画圆点
+				ctx.beginPath();
+				ctx.arc(xPos, yPos, 3, 0, 2 * Math.PI);
+				ctx.fill();
+				//画时间指针线
+				ctx.fillRect(xPos - 1, yPos, 2, this.oneHeight * 4);
 			}
 		}
 	};
@@ -531,8 +549,10 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	};
 	
 	this.setPos = overload((position) => {
-		console.log(position);
 		this.position = position;
+		this.updateTimeLine();
+		timeLinePoint.css({left: this.getPixelTickte(position) - 1});
+		eventEmitter.emit('position.now', ...this.getTicket(position));
 	}, (measure, beat, pos) => {
 		this.setPos(this.getTicket(measure, beat, pos));
 	});
