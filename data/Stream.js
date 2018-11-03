@@ -1,4 +1,4 @@
-var io = new function(){
+namespace('data').Stream = new function(){
     this.wrapperList = {};
     this.registerWrapper = function(name, wrapper){
         this.wrapperList[name] = wrapper;

@@ -3,48 +3,19 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title></title>
-        <script src="lib/jquery.min.js"></script>
-        <script src="utils/autoloader.js"></script>
-        <script src="ui/Utils.js"></script>
-        <style>
-            #info {
-                height: 40px;
-            }
-            #canvas {
-                border: 2px solid #ccc;
-            }
-        </style>
+        <link rel="stylesheet" href="view/style.css" />
     </head>
     
     <body>
-        <div id="info"></div>
-        <canvas id="canvas" width="500" height="500"></canvas>
-        <script>
-            var info = $('#info');
-            var canvas = $('#canvas');
-            var ctx = canvas[0].getContext('2d');
-            var points = [];
-            var clickNum = 0;
-            
-            function updateInfo(){
-                var ret = '';
-                points.forEach(function(point){
-                    ret += 'x: ' + point[0] + ', y: ' + point[1] + '    ';
-                });
-                info.text(ret);
-            }
-            canvas.click(function(e){
-                clickNum ++;
-                points.push([e.offsetX, e.offsetY]);
-                updateInfo();
-                if(clickNum == 2){
-                    var x1 = points[0][0], y1 = points[0][1], x2 = points[1][0], y2 = points[1][1];
-                    var startX = Math.min(x1, x2);
-                    console.log(startX);
-                    clickNum = 0;
-                    points = [];
-                }
-            });
-        </script>
+        <div>
+            <div class="note-container right-connect">
+                <div class="note-body" style="width: 100px"><span class="note-lyric">あ</span><span class="note-phonm">[a]</span></div>
+                <button class="note-tail"></button>
+            </div>
+            <div class="note-container left-connect">
+                <div class="note-body" style="width: 100px"><span class="note-lyric">い</span><span class="note-phonm">[i]</span></div>
+                <button class="note-tail"></button>
+            </div>
+        </div>
     </body>
 </html>

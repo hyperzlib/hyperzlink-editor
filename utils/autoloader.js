@@ -138,27 +138,27 @@ function loader(useCall, target){
 		$.ajaxSetup({
 			cache: true,
 		});
-		useList.forEach(function(val, key){
+		useList.forEach((val, key) => {
 			if(isClassExists(val.class)){ //判断是否是已加载的类
 				var tObj = eval(val.class)
 				target[val.name] = tObj;
 				useList[key].loaded = true;
 				loaded ++;
-				onLoaded();
+				onLoaded(key, val.name, tObj);
 			} else { //从服务器加载文件
-				$.getScript(val.url).done(function(){
+				$.getScript(val.url).done(() => {
 				    //检测是否为class文件
 					if(isClassExists(val.class)){
 						tObj = eval(val.class);
 						//开始进行循环依赖初始化
 						if(typeof dependList[val.class] != 'undefined'){
-							loader(function(use){
-								dependList[val.class].forEach(function(package){
+							loader((use) => {
+								dependList[val.class].forEach((package) => {
 									use(package);
 								});
-							}, tObj).then(function(){
+							}, tObj).then(() => {
 								onLoaded(key, val.name, tObj);
-							}).catch(function(e){
+							}).catch((e) => {
 								reject(e);
 							});
 						} else {
@@ -167,7 +167,7 @@ function loader(useCall, target){
 					} else {
 						reject('unable to find class: ' + val.class);
 					}
-				}).fail(function(a, b, e){
+				}).fail((a, b, e) => {
 					reject(e);
 					return;
 				});
@@ -199,14 +199,20 @@ function namespace(ns){
 //类的继承
 function extend(father, child){
     var Super = function(){};
-    var Template = function(){
-        father.call(this);
-        child.call(this);
-    };
-    Super.prototype = child.prototype;
-    Template.prototype = new Super();
-    Super.prototype = father.prototype;
-    Template.prototype = new Super();
+    var Template;
+    loader((use) => {
+        use(father);
+    }).then(() => {
+        father = eval(father);
+        Template = function(){
+            father.call(this);
+            child.call(this);
+            Super.prototype = child.prototype;
+            Template.prototype = new Super();
+            Super.prototype = father.prototype;
+            Template.prototype = new Super();
+        };
+    });
     return Template;
 }
 
