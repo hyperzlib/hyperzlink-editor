@@ -14,6 +14,7 @@ namespace('ui').MenuBar = function(dom){
     this.fontColor = '#0c0c0c';
     var css = `${dom} {
         background-color: ${this.backgroundColor};
+        font-family: sans-serif, 'Microsoft Yahei', Simhei;
     }
     ${dom} ul {
         margin: 0;
@@ -45,6 +46,10 @@ namespace('ui').MenuBar = function(dom){
         width: 150px;
         position: fixed;
         z-index: 200;
+    }
+
+    ${dom} .underline{
+        text-decoration: underline;
     }
     
     ${dom} .ui-menu-item {
@@ -115,9 +120,23 @@ namespace('ui').MenuBar = function(dom){
         }
     };
 
+    this.getFinalLabel = function(label, shortcut){
+        var start = label.toLowerCase().indexOf(shortcut.toLowerCase());
+        var length = shortcut.length;
+        var ret = '';
+        if(start >= 0){
+            ret += label.substr(0, start);
+            ret += '<span class="underline">' + label.substr(start, length) + '</span>';
+            ret += label.substring(start + length, label.length);
+            return ret;
+        } else {
+            return label + '(<span class="underline">' + shortcut + '</span>)';
+        }
+    }
+
     this.addNav = function(name, label, shortcut){
         if(shortcut != undefined){
-            label += '(' + shortcut + ')';
+            label = this.getFinalLabel(label, shortcut);
         }
         var li = nav.append('<li><button id="btn-menu-'+name+'" data-role="menu-list">'+label+'</button></li>').find('li:last');
         navDomList[name] = li;
