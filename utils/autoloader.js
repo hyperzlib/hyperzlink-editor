@@ -157,6 +157,7 @@ function loader(useCall, target){
 									use(package);
 								});
 							}, tObj).then(() => {
+							    console.log(val.name);
 								onLoaded(key, val.name, tObj);
 							}).catch((e) => {
 								reject(e);
