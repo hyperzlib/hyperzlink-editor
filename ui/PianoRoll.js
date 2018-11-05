@@ -1,4 +1,6 @@
 depends('ui.PianoRoll', [
+	'data.Note',
+	'data.NoteList',
 	'ui.Utils',
 	'events.EventEmitter'
 ]);
@@ -74,7 +76,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		timeLinePoint: '#009933',
 	};
 	this.position = 0;
-	this.noteList = [];
+	this.noteList = new data.NoteList(this);
 	this.selectedNote = null;
 	this.nextNote = {lyric: 'a', phonm: 'a'};
 	
@@ -250,8 +252,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			if(tempNote !== null){
 				var offset = this.getNoteOffset(e);
 				if(moveMode){
-					console.log('move');
-					tempNote.start = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantizeLen));
+					tempNote.start = Math.max(0, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantize));
 					tempNote.num = this.getMouseNoteNum(offset.y);
 					tempNoteDom.css({left: this.getTicketPos(tempNote.start), top: this.getNoteNumPos(tempNote.num)});
 				} else {
@@ -273,10 +274,10 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				} else {
 					var offset = this.getNoteOffset(e);
 					if(moveMode){
-						tempNote.start = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantizeLen));
+						tempNote.start = Math.max(0, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantize));
 						tempNote.num = this.getMouseNoteNum(offset.y);
 						tempNoteDom.css({left: this.getTicketPos(tempNote.start), top: this.getNoteNumPos(tempNote.num)});
-						this.noteList[editId] = tempNote;
+						//this.noteList[editId] = tempNote;
 						editOffset = 0;
 						editId = null;
 						moveMode = false;
@@ -296,7 +297,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 							tempNoteDom.append('<button class="note-tail"></button>');
 							tempNoteDom.addClass('finished');
 							tempNoteDom.attr('data-id', this.noteList.length);
-							this.noteList.push(tempNote);
+							this.noteList.add(tempNote);
 						}
 						tempNote = null;
 						tempNoteDom = null;
@@ -604,7 +605,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	
 	//量化
 	this.doQuantize = function(val, quantize){
-		return val - val % quantize;
+		quantize = Math.round(this.resolution / quantize);
+		return Math.round(val / quantize) * quantize;
 	};
 	
 	//获取左侧折叠部分长度

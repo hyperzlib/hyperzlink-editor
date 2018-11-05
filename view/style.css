@@ -109,9 +109,6 @@ input {
 .note-container.right-connect {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-}
-
-.note-container.right-connect .note-tail {
     border-right: 2px solid #008cb7;
 }
 
