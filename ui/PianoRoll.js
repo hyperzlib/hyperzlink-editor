@@ -23,7 +23,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	var lastNotePos = 0;
 	/*var lastMouseY = 0;
 	var lastScroll = 0;*/
-	var subNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+	this.subNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 	
 	this.currentTool = 0;
 	this.toolsId = {
@@ -42,7 +42,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 
 	this.cursors = {
 		cursor: 'default',
-		pencil: 'url("res/pencil.png") 2 18, crosshair'
+		pencil: 'url("res/pencil.png") 2 18, crosshair',
+		resize: 'ew-resize',
 	};
 	
 	this.scales = 5;
@@ -73,6 +74,14 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		timeLinePoint: '#009933',
 	};
 	this.position = 0;
+	this.noteList = [];
+	this.selectedNote = null;
+	this.nextNote = {lyric: 'a', phonm: 'a'};
+	
+	this.editMode = {
+		ads: true,
+		rip: false,
+	};
 	
 	this.setHeight = function(height){
 		this.height = height;
@@ -94,6 +103,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		this.drawNoteBg();
 		this.drawTimeLine();
 		this.updateTimeLinePtr();
+		this.updateNotes();
 	};
 	
 	this.setBeat = function(beat, measure){
@@ -134,15 +144,16 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		noteList = noteListContainer.find('.div-piano-notelist:first');
 		singerThumb = noteListContainer.find('.div-piano-singer-thumb:first');
 		timeLinePoint = noteList.append('<div class="div-timeline-pointer"></div>').find('.div-timeline-pointer:first');
-		noteList.css({zIndex: 10});
 		singerThumb.css({position: 'absolute', zIndex: -1});
 		singerThumbImg = singerThumb.append('<img style="display: none"></img>').find('img:first');
 		headerPanel.css({display: 'inline-block', float: 'left'});
-		pianoKeys.css({float: 'left'});
+		pianoKeys.css({float: 'left', position: 'relative', zIndex: 100});
 		noteListContainer.css({float: 'left'});
-		timeLineHeader.css({float: 'left'});
+		noteList.css({zIndex: 10, position: 'relative'});
+		timeLineHeader.css({float: 'left', zIndex: 200, position: 'relative'});
 		timeLine.css({display: 'inline-block', float: 'left'});
-		timeLinePoint.css({position: 'relative', display: 'inline-block', zIndex: 50, width: 2, backgroundColor: this.color.timeLinePoint, left: -1, overflow: 'hidden'});
+		timeLinePoint.css({position: 'absolute', display: 'inline-block', zIndex: 50, width: 2, backgroundColor: this.color.timeLinePoint, left: -1, overflow: 'hidden'});
+		keyPopup.css({zIndex: 101});
 		this.bindEvents();
 		this.update();
 	};
@@ -154,6 +165,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		});
 		var lastXPos = 0;
 		var lastYPos = 0;
+		this.root[0].onselectstart = function(){ return false };
 		noteListContainer.css({display: 'inline-block', overflow: 'scroll', width: this.width - this.pianoNoteWidth, height: this.height - (this.timeLineOneHeight * 4)});
 		noteListContainer.scroll(function(){
 			var xPos = $(this).scrollLeft();
@@ -192,7 +204,6 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		$('body').mousemove((e) => {
 			if(isDrag){
 				this.setPos(this.getMouseTicket(this.getLeft() + Math.max(0, e.pageX - this.pianoNoteWidth)));
-			    return false;
 			}
 		}).mouseup((e) => {
 			if(isDrag){
@@ -216,15 +227,120 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				console.log('change global beat');
 			}
 		});
+
+		//画音符的处理
+		var tempNote = null;
+		var tempNoteDom = null;
+		var editId = null;
+		var moveMode = false;
+		var editOffset = 0;
+		noteList.mousedown((e) => {
+			if(e.target.className == 'div-piano-notelist'){
+				var offset = this.getNoteOffset(e);
+				if(this.currentTool == this.toolsId.pencil){
+					tempNote = {num: this.getMouseNoteNum(offset.y), start: this.doQuantize(this.getMouseTicket(offset.x), this.quantize), length: 0};
+				}
+				//取消当前选中
+				if(this.selectedNote != null){
+					this.selectedNote.dom.removeClass('selected');
+					this.selectedNote = null;
+				}
+			}
+		}).mousemove((e) => {
+			if(tempNote !== null){
+				var offset = this.getNoteOffset(e);
+				if(moveMode){
+					console.log('move');
+					tempNote.start = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantizeLen));
+					tempNote.num = this.getMouseNoteNum(offset.y);
+					tempNoteDom.css({left: this.getTicketPos(tempNote.start), top: this.getNoteNumPos(tempNote.num)});
+				} else {
+					if(tempNoteDom == null){
+						tempNoteDom = noteList.append('<div class="note-container note-now">\
+							<div class="note-body"><span class="note-lyric">' + this.nextNote.lyric + '</span><span class="note-phonm">[' + this.nextNote.phonm + ']</span></div>\
+						</div>').find('.note-now');
+						tempNoteDom.removeClass('note-now');
+						tempNoteDom.css({width: 1, height: this.oneHeight, top: this.getNoteNumPos(tempNote.num), left: this.getTicketPos(tempNote.start)});
+					}
+					tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
+					tempNoteDom.css({width: this.getTicketPos(tempNote.length)});
+				}
+			}
+		}).mouseup((e) => {
+			if(tempNote !== null){
+				if(tempNoteDom == null){
+					tempNote = null;
+				} else {
+					var offset = this.getNoteOffset(e);
+					if(moveMode){
+						tempNote.start = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantizeLen));
+						tempNote.num = this.getMouseNoteNum(offset.y);
+						tempNoteDom.css({left: this.getTicketPos(tempNote.start), top: this.getNoteNumPos(tempNote.num)});
+						this.noteList[editId] = tempNote;
+						editOffset = 0;
+						editId = null;
+						moveMode = false;
+						tempNote = null;
+						tempNoteDom = null;
+					} else {
+						tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
+						tempNote.dom = tempNoteDom;
+						tempNoteDom.css({width: this.getTicketPos(tempNote.length)});
+						if(editId !== null){
+							this.noteList[editId] = tempNote;
+							tempNoteDom.removeClass('resizing');
+							editId = null;
+							editOffset = 0;
+							_this.setCursor(_this.getToolName(_this.currentTool));
+						} else {
+							tempNoteDom.append('<button class="note-tail"></button>');
+							tempNoteDom.addClass('finished');
+							tempNoteDom.attr('data-id', this.noteList.length);
+							this.noteList.push(tempNote);
+						}
+						tempNote = null;
+						tempNoteDom = null;
+					}
+				}
+			}
+		});
+
+		//调节音符长度处理
+		noteList.on('mousedown', '.note-tail', function(e){
+			var dom = $(this);
+			var id = parseInt(dom.parent('.note-container').attr('data-id'));
+			if(_this.noteList[id] !== undefined){
+				tempNote = _this.noteList[id];
+				tempNoteDom = tempNote.dom;
+				editId = id;
+				editOffset = e.offsetX;
+				_this.setCursor('resize');
+				tempNoteDom.addClass('resizing');
+			}
+		});
+		
+		//选中或移动音符处理
+		noteList.on('mousedown', '.note-body', function(e){
+			var dom = $(this);
+			var id = parseInt(dom.parent('.note-container').attr('data-id'));
+			editId = id;
+			moveMode = true;
+			editOffset = e.offsetX;
+			if(_this.selectNote(id)){
+				tempNote = _this.selectedNote;
+				tempNoteDom = tempNote.dom;
+			}
+		});
 	};
 
 	this.onMouseMove = function(e){
+		var offset = this.getNoteOffset(e);
 		//update popup
-		lastMouseY = e.offsetY;
-		this.updatePopup(e.offsetY);
+		lastMouseY = offset.y;
+		this.updatePopup(offset.y);
 		//update current position
 		var baseWidth = Math.floor(this.beatWidth * this.zoom / 100);
-		var mouseX = e.offsetX;
+		var mouseX = offset.x;
 		var beatPos = Math.floor(mouseX / baseWidth);
 		var measurePos = Math.floor(beatPos / this.beatLength);
 		var beatPos = beatPos % this.beatLength;
@@ -251,8 +367,14 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		this.drawNoteBg();
 		noteListContainer.css({height: (this.height - (this.timeLineOneHeight * 4)) + 'px'});
 		timeLinePoint.css({height: 5 * 12 * this.oneHeight});
-		noteList.css({width: '10000px'});
+		noteList.css({width: 10000});
 		noteList.height(5 * 12 * this.oneHeight);
+	};
+	
+	this.updateNotes = function(){
+		this.noteList.forEach((one) => {
+			one.dom.css({width: this.getTicketPos(one.length), height: this.oneHeight, top: this.getNoteNumPos(one.num), left: this.getTicketPos(one.start)});
+		});
 	};
 	
 	this.drawPianoNotes = function(){
@@ -287,8 +409,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				ctx.fillStyle = infoText;
 				ctx.textBaseline = 'middle';
 				ctx.font = oneHeight + "px 'Microsoft Yahei'";
-				index = parseInt((index - index % 12) / 12);
-				ctx.fillText("C" + (index + 1), width / 2 + 5, nowPos + (oneHeight / 2) + 1);
+				ctx.fillText(this.getNoteLabel(i - 2, true), width / 2 + 5, nowPos + (oneHeight / 2) + 1);
 			}
 		}
 		pianoKeys.css({width: width, height: (this.height - (oneHeight * 4)) + 'px', backgroundImage: "url('" + tempCanvas[0].toDataURL() + "')"});
@@ -449,7 +570,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			}
 			//画当前时间线
 			//计算时间线在屏幕上的位置
-			var xPos = this.getPixelTickte(this.position) - this.getLeft();
+			var xPos = this.getTicketPos(this.position) - this.getLeft();
 			if(xPos >= 0 && xPos <= width){
 				//xPos += 1;
 				yPos = this.timeLineOneHeight / 2 + 3;
@@ -465,6 +586,22 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		}
 	};
 	
+	this.selectNote = function(id){
+		if(this.selectedNote != null){
+			this.selectedNote.dom.removeClass('selected');
+			this.selectedNote = null;
+		}
+		if(this.noteList[id] !== undefined){
+			tempNote = this.noteList[id];
+			tempNoteDom = tempNote.dom;
+			this.selectedNote = tempNote;
+			tempNoteDom.addClass('selected');
+			return true;
+		} else {
+			return false;
+		}
+	};
+	
 	//量化
 	this.doQuantize = function(val, quantize){
 		return val - val % quantize;
@@ -475,9 +612,19 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		return noteListContainer.scrollLeft();
 	};
 
+	//获取上侧折叠部分长度
+	this.getTop = function(){
+		return noteListContainer.scrollTop();
+	};
+
 	//根据鼠标位置获取音符
 	this.getMouseNoteNum = function(height){
 		return this.scales * 12 - Math.floor(height / this.oneHeight) - 1;
+	};
+
+	//根据音符获取左上角的坐标
+	this.getNoteNumPos = function(height){
+		return (this.scales * 12 - height - 1) * this.oneHeight;
 	};
 	
 	this.getMouseTicket = function(xPos){
@@ -485,15 +632,15 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		return tik;
 	};
 	
-	this.getPixelTickte = function(tik){
+	this.getTicketPos = function(tik){
 		return Math.round(tik * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
 	};
 
 	//根据音的数字获取音符标签
-	this.getNoteLabel = function(nIndex){
+	this.getNoteLabel = function(nIndex, fixLen){
 		var scale = Math.floor(nIndex / 12) + 1;
 		var sub = nIndex % 12;
-		var subName = subNames[sub];
+		var subName = this.subNames[sub];
 		return subName + scale.toString();
 	};
 	
@@ -509,10 +656,24 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		ticket = ticket % this.resolution;
 		return [measure, beat, ticket];
 	});
+
+	this.getNoteOffset = function(e){
+		var ret = {x: 0, y: 0};
+		var offset = noteListContainer.offset();
+		ret.x = e.pageX - offset.left + this.getLeft();
+		ret.y = e.pageY - offset.top + this.getTop();
+		return ret;
+	};
+	
+	this.addNote = function(note){
+		if(note.dom == undefined){
+			//新建note图形
+		}
+	};
 	
 	this.updatePopup = function(height){
 		var nIndex = this.getMouseNoteNum(height);
-		var label = this.getNoteLabel(nIndex);
+		var label = this.getNoteLabel(nIndex, true);
 		var sPos = (this.scales * 12 - 1 - nIndex) * this.oneHeight - 3;
 		var keyPopupPos = noteListContainer.offset().top - noteListContainer.scrollTop() + sPos;
 		if(lastNotePos != keyPopupPos || lastPopupLabel != label){
@@ -530,7 +691,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	
 	this.updateTimeLinePtr = function(){
 	    this.updateTimeLine();
-		timeLinePoint.css({left: this.getPixelTickte(this.position) - 1});
+		timeLinePoint.css({left: this.getTicketPos(this.position) - 1});
 	};
 
 	this.setCursor = function(name){
@@ -558,6 +719,15 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				break;
 		}
 	};
+	
+	this.getToolName = function(toolId){
+		for(var key in this.toolsId){
+			if(this.toolsId[key] == toolId){
+				return key;
+			}
+		}
+		return 'point';
+	}
 	
 	this.setPos = overload((position) => {
 		this.position = position;

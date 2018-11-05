@@ -62,17 +62,17 @@ namespace('ui.Panel').EditPanel = function(){
             eventEmitter.emit('toolchange', name);
         });
         
-        var editshow = this.dom.find('#div-edit-show');
-        editshow.find('input[type="checkbox"]').change(function(){
+        var editmode = this.dom.find('#div-edit-mode');
+        editmode.find('input[type="checkbox"]').change(function(){
             var name = $(this).attr('id');
-            name = name.replace(/^btn-editshow-/, '');
+            name = name.replace(/^btn-editmode-/, '');
             var state = $(this).prop('checked');
             if(state){
-                eventEmitter.emit('editshow', name);
-                eventEmitter.emit('show.' + name);
+                eventEmitter.emit('modeon', name);
+                eventEmitter.emit('modeon.' + name);
             } else {
-                eventEmitter.emit('edithide', name);
-                eventEmitter.emit('hide.' + name);
+                eventEmitter.emit('modeon', name);
+                eventEmitter.emit('modeon.' + name);
             }
         });
         

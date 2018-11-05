@@ -38,7 +38,7 @@ loader((use) => {
 
     menuBar.addNav('edit', 'Edit', 'E');
     menuBar.addNav('voice', 'Voice', 'V');
-    menuBar.addNav('synthetize', 'Synthetize', 'R');
+    menuBar.addNav('synthetize', 'Synthetize', 'T');
     menuBar.addNav('setting', 'Setting', 'S');
     menuBar.addNav('help', 'Help', 'H');
     

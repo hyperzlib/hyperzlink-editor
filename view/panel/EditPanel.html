@@ -85,7 +85,12 @@
         width: 50px;
     }
 
-    .div-edit-show .ui-button {
+    #div-edit-control .ui-button, #div-edit-tools .ui-button {
+        padding-top: 3px;
+        padding-bottom: 1em;
+    }
+
+    .div-edit-mode .ui-button {
         padding-top: 3px;
         padding-bottom: 3px;
     }
@@ -138,13 +143,11 @@
             <label for="btn-edit-eraser" data-id="eraser"><i class="fa fa-eraser"></i></label>
             <input type="radio" name="actived-tool" id="btn-edit-eraser">
         </div>
-        <div class="div-edit-toolbar div-edit-show" id="div-edit-show">
-            <label for="btn-editshow-params">Params</label>
-            <input type="checkbox" id="btn-editshow-params">
-            <label for="btn-editshow-wave">Wave</label>
-            <input type="checkbox" id="btn-editshow-wave">
-            <label for="btn-editshow-phonme">Phonme</label>
-            <input type="checkbox" id="btn-editshow-phonme">
+        <div class="div-edit-toolbar div-edit-mode" id="div-edit-mode">
+            <label for="btn-editmode-adsorption">Adsorption</label>
+            <input type="checkbox" id="btn-editmode-adsorption">
+			<label for="btn-editmode-ripple">Ripple</label>
+            <input type="checkbox" id="btn-editmode-ripple">
         </div>
     </div>
     <div class="div-edit-tools" id="editpanel-edit">
