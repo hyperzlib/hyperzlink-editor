@@ -464,7 +464,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		ctx.fillStyle = measureColor;
 		ctx.fillRect(width - 2, 0, 2, height);
 		//转为背景图
-		noteList.css({backgroundImage: "url('" + tempCanvas[0].toDataURL() + "')"});
+		noteList.css({backgroundImage: "url('" + tempCanvas[0].toDataURL() + "')", backgroundPositionX: 1});
 	};
 
 	this.drawTimeLine = function(){
@@ -535,11 +535,10 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			//画竖线
 			for(var j = 0; j < beatLength; j ++){
 				//ctx.fillStyle = divLineColor;
-				ctx.fillRect(j * oneWidth - 1, pos - halfHeight, 2, halfHeight);
+				ctx.fillRect(j * oneWidth, pos - halfHeight, 2, halfHeight);
 			}
 			//ctx.fillStyle = divLineColor;
-			ctx.fillRect(0, 0, 1, height);
-			ctx.fillRect(width - 1, 0, 1, height);
+			ctx.fillRect(0, 0, 2, height);
 		}
 		//time line
 		pos = oneHeight / 2 + 2;
@@ -567,7 +566,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			ctx.fillStyle = this.color.timeLineText;
 			ctx.font = this.timeLineOneHeight + "px 'Microsoft Yahei'";
 			for(var i = 0; i < endIndex; i ++){
-				ctx.fillText(startIndex + i + 1, startPos + (i * measureWidth), yPos);
+				ctx.fillText(startIndex + i + 1, startPos + (i * measureWidth) + 1, yPos);
 			}
 			//画当前时间线
 			//计算时间线在屏幕上的位置
