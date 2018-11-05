@@ -1,4 +1,4 @@
-## model for DualSpace engine ##
+## model for DualSpace engine (dsmh) ##
 
 ### chunk map (json) ###
 ```javascript
