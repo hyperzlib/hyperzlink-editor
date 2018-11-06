@@ -173,7 +173,6 @@ input {
     width: 10px;
     height: 100%;
     background-image: linear-gradient(to bottom, #2aabd2 0, #5bc0de 100%);
-    background-image: none;
     background-repeat: repeat-x;
     border-color: #28a4c9;
     color: #fff;

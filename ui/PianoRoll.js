@@ -240,7 +240,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			if(e.target.className == 'div-piano-notelist'){
 				var offset = this.getNoteOffset(e);
 				if(this.currentTool == this.toolsId.pencil){
-					tempNote = {num: this.getMouseNoteNum(offset.y), start: this.doQuantize(this.getMouseTicket(offset.x), this.quantize), length: 0};
+					tempNote = {pitchNum: this.getMouseNoteNum(offset.y), start: this.doQuantize(this.getMouseTicket(offset.x), this.quantize), length: 0};
 				}
 				//取消当前选中
 				if(this.selectedNote != null){
@@ -253,18 +253,19 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				var offset = this.getNoteOffset(e);
 				if(moveMode){
 					tempNote.start = Math.max(0, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantize));
-					tempNote.num = this.getMouseNoteNum(offset.y);
-					tempNoteDom.css({left: this.getTicketPos(tempNote.start), top: this.getNoteNumPos(tempNote.num)});
+					tempNote.pitchNum = this.getMouseNoteNum(offset.y);
 				} else {
+					tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
 					if(tempNoteDom == null){
 						tempNoteDom = noteList.append('<div class="note-container note-now">\
 							<div class="note-body"><span class="note-lyric">' + this.nextNote.lyric + '</span><span class="note-phonm">[' + this.nextNote.phonm + ']</span></div>\
 						</div>').find('.note-now');
 						tempNoteDom.removeClass('note-now');
-						tempNoteDom.css({width: 1, height: this.oneHeight, top: this.getNoteNumPos(tempNote.num), left: this.getTicketPos(tempNote.start)});
+						tempNoteDom.css({width: this.getTicketPos(tempNote.length), height: this.oneHeight, top: this.getNoteNumPos(tempNote.pitchNum), left: this.getTicketPos(tempNote.start)});
+						tempNote.dom = tempNoteDom
+						var id = this.noteList.add(tempNote);
+						tempNote = this.noteList[id];
 					}
-					tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
-					tempNoteDom.css({width: this.getTicketPos(tempNote.length)});
 				}
 			}
 		}).mouseup((e) => {
@@ -275,8 +276,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 					var offset = this.getNoteOffset(e);
 					if(moveMode){
 						tempNote.start = Math.max(0, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantize));
-						tempNote.num = this.getMouseNoteNum(offset.y);
-						tempNoteDom.css({left: this.getTicketPos(tempNote.start), top: this.getNoteNumPos(tempNote.num)});
+						tempNote.pitchNum = this.getMouseNoteNum(offset.y);
 						//this.noteList[editId] = tempNote;
 						editOffset = 0;
 						editId = null;
@@ -285,23 +285,18 @@ namespace('ui').PianoRoll = function(dom, width, height){
 						tempNoteDom = null;
 					} else {
 						tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
-						tempNote.dom = tempNoteDom;
-						tempNoteDom.css({width: this.getTicketPos(tempNote.length)});
 						if(editId !== null){
-							this.noteList[editId] = tempNote;
 							tempNoteDom.removeClass('resizing');
 							editId = null;
 							editOffset = 0;
 							_this.setCursor(_this.getToolName(_this.currentTool));
 						} else {
-							tempNoteDom.append('<button class="note-tail"></button>');
-							tempNoteDom.addClass('finished');
-							tempNoteDom.attr('data-id', this.noteList.length);
-							this.noteList.add(tempNote);
+							tempNote.finished = true;
 						}
 						tempNote = null;
 						tempNoteDom = null;
 					}
+					this.noteList.updateList();
 				}
 			}
 		});
