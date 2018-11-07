@@ -58,6 +58,9 @@ namespace('data').NoteList = function(pianoRoll){
 		list.sort((a, b) => {
 			return a.start - b.start;
 		});
+		list.forEach((data, key) => {
+			data.timeId = key;
+		});
 		//计算重叠
 		for(var i = 1; i < list.length; i ++){
 			if(list[i - 1].end > list[i].start){
@@ -69,6 +72,15 @@ namespace('data').NoteList = function(pianoRoll){
 				list[i - 1].overlay = false;
 				list[i].overlay = false;
 			}
+		}
+	};
+	
+	this.deleteNote = function(note){
+		if(note.id != undefined && this[note.id] != undefined){
+			delete this[note.id];
+		}
+		if(note.timeId != undefined && this.timeList[note.timeId] != undefined){
+			delete this.timeList[note.timeId];
 		}
 	};
 };

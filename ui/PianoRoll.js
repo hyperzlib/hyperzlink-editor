@@ -258,13 +258,15 @@ namespace('ui').PianoRoll = function(dom, width, height){
 					tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
 					if(tempNoteDom == null){
 						tempNoteDom = noteList.append('<div class="note-container note-now">\
-							<div class="note-body"><span class="note-lyric">' + this.nextNote.lyric + '</span><span class="note-phonm">[' + this.nextNote.phonm + ']</span></div>\
+							<div class="note-body"><span class="note-lyric"></span><span class="note-phonm">[<span class="note-phonm-data"></span>]</span></div>\
 						</div>').find('.note-now');
 						tempNoteDom.removeClass('note-now');
 						tempNoteDom.css({width: this.getTicketPos(tempNote.length), height: this.oneHeight, top: this.getNoteNumPos(tempNote.pitchNum), left: this.getTicketPos(tempNote.start)});
 						tempNote.dom = tempNoteDom
 						var id = this.noteList.add(tempNote);
 						tempNote = this.noteList[id];
+						tempNote.lyric = this.nextNote.lyric;
+						tempNote.phonm = this.nextNote.phonm;
 					}
 				}
 			}

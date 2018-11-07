@@ -1,9 +1,8 @@
 namespace('data').Note = function(father){
 	var piano = father.pianoRoll;
 
-	this.prev = null;
-	this.next = null;
 	this.id = 0;
+	this.timeId = 0;
 	this.start = 0;
 	this.setStart = function(val){
 		this.start = val;
@@ -32,6 +31,16 @@ namespace('data').Note = function(father){
 		return this.start + this.length;
 	};
 	
+	this.lyric = '';
+	this.setLyric = function(val){
+		this.dom.find('.note-lyric').text(val);
+	};
+	
+	this.phonm = '';
+	this.setPhonm = function(val){
+		this.dom.find('.note-phonm-data').text(val);
+	};
+	
 	this.overlay = false;
 	this.setOverlay = function(val){
 		if(val && !this.overlay){
@@ -56,4 +65,9 @@ namespace('data').Note = function(father){
 	};
 
 	this.dom = null;
+	
+	this.delete = function(){
+		this.dom.remove();
+		father.deleteNote(this);
+	};
 }
