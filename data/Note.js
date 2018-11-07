@@ -23,7 +23,7 @@ namespace('data').Note = function(father){
 	this.setLength = function(val){
 		this.length = val;
 		if(this.dom != null){
-			this.dom.css({width: pianoRoll.getTicketPos(val)});
+			this.dom.css({width: pianoRoll.getTicketPos(this.getEnd()) - pianoRoll.getTicketPos(this.start)});
 		}
 	};
 
@@ -33,11 +33,13 @@ namespace('data').Note = function(father){
 	
 	this.lyric = '';
 	this.setLyric = function(val){
+		this.lyric = val;
 		this.dom.find('.note-lyric').text(val);
 	};
 	
 	this.phonm = '';
 	this.setPhonm = function(val){
+		this.phonm = val;
 		this.dom.find('.note-phonm-data').text(val);
 	};
 	
@@ -61,6 +63,28 @@ namespace('data').Note = function(father){
 				this.dom.addClass('finished');
 				this.dom.attr('data-id', this.id);
 			}
+		}
+	};
+
+	this.leftConnect = false;
+	this.setLeftConnect = function(val){
+		if(val && !this.leftConnect){
+			this.leftConnect = true;
+			if(this.dom != null) this.dom.addClass('left-connect');
+		} else if(!val && this.leftConnect){
+			this.leftConnect = false;
+			if(this.dom != null) this.dom.removeClass('left-connect');
+		}
+	};
+
+	this.rightConnect = false;
+	this.setRightConnect = function(val){
+		if(val && !this.rightConnect){
+			this.rightConnect = true;
+			if(this.dom != null) this.dom.addClass('right-connect');
+		} else if(!val && this.rightConnect){
+			this.rightConnect = false;
+			if(this.dom != null) this.dom.removeClass('right-connect');
 		}
 	};
 

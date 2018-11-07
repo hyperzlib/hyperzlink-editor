@@ -127,6 +127,12 @@ input {
 	width: 100%;
 }
 
+.note-container.overlay {
+    background-image: none;
+    background: #62ccec;
+    color: #eee;
+}
+
 .note-container:hover > .note-body {
 	width: calc(100% - 10px);
 }

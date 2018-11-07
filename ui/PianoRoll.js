@@ -46,6 +46,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		cursor: 'default',
 		pencil: 'url("res/pencil.png") 2 18, crosshair',
 		resize: 'ew-resize',
+		grabbing: 'pointer',
 	};
 	
 	this.scales = 5;
@@ -161,10 +162,11 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	};
 	
 	this.bindEvents = function(){
-	    var _this = this;
+		var _this = this;
 		noteListContainer.mousemove((e) => {
 		    this.onMouseMove(e);
 		});
+
 		var lastXPos = 0;
 		var lastYPos = 0;
 		this.root[0].onselectstart = function(){ return false };
@@ -285,6 +287,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 						moveMode = false;
 						tempNote = null;
 						tempNoteDom = null;
+						_this.setCursor(_this.getToolName(_this.currentTool));
 					} else {
 						tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
 						if(editId !== null){
@@ -324,6 +327,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			editId = id;
 			moveMode = true;
 			editOffset = e.offsetX;
+			_this.setCursor('grabbing');
 			if(_this.selectNote(id)){
 				tempNote = _this.selectedNote;
 				tempNoteDom = tempNote.dom;
@@ -631,7 +635,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	};
 	
 	this.getTicketPos = function(tik){
-		return Math.round(tik * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
+		return Math.floor(tik * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
 	};
 
 	//根据音的数字获取音符标签

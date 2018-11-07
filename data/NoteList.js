@@ -63,14 +63,23 @@ namespace('data').NoteList = function(pianoRoll){
 		});
 		//计算重叠
 		for(var i = 1; i < list.length; i ++){
-			if(list[i - 1].end > list[i].start){
+			var prev = list[i - 1];
+			var now = list[i];
+			if(prev.end > now.start){
 				//重叠
-				list[i - 1].overlay = true;
-				list[i].overlay = true;
+				prev.overlay = true;
+				now.overlay = true;
 			} else {
 				//非重叠
-				list[i - 1].overlay = false;
-				list[i].overlay = false;
+				prev.overlay = false;
+				now.overlay = false;
+			}
+			if(prev.pitchNum == now.pitchNum && prev.end == now.start){
+				prev.rightConnect = true;
+				now.leftConnect = true;
+			} else {
+				prev.rightConnect = false;
+				now.leftConnect = false;
 			}
 		}
 	};
