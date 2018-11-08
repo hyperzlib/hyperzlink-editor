@@ -3,6 +3,8 @@ depends('ui.PianoRoll', [
 ]);
 
 namespace('data').NoteList = function(pianoRoll){
+    this.pianoRoll = pianoRoll;
+    
 	var baseHandle = {
 		get: (obj, name) => {
 			if(typeof name == 'string'){
@@ -27,6 +29,7 @@ namespace('data').NoteList = function(pianoRoll){
 			} else {
 				obj[name] = value;
 			}
+			return obj[name];
 		},
 	}
 	
@@ -55,7 +58,7 @@ namespace('data').NoteList = function(pianoRoll){
 	this.updateList = function(id){
 		var list = this.timeList;
 		//排序列表
-		list.sort((a, b) => {
+		list = list.sort((a, b) => {
 			return a.start - b.start;
 		});
 		list.forEach((data, key) => {
@@ -82,14 +85,33 @@ namespace('data').NoteList = function(pianoRoll){
 				now.leftConnect = false;
 			}
 		}
+		list[0].leftConnect = false;
+		list[list.length - 1].rightConnect = false;
 	};
 	
 	this.deleteNote = function(note){
 		if(note.id != undefined && this[note.id] != undefined){
-			delete this[note.id];
+			for(var i = note.id; i < this.length - 1; i ++){
+			    this[i] = this[i + 1];
+			    if(this[i] !== undefined) this[i].id = i;
+			}
+			delete this[-- this.length];
 		}
 		if(note.timeId != undefined && this.timeList[note.timeId] != undefined){
-			delete this.timeList[note.timeId];
+		    var list = this.timeList;
+			delete list[note.timeId];
+			var t;
+			for(var i = note.timeId; i < list.length - 1; i ++){
+			    list[i] = list[i + 1];
+			}
+			list.splice(list.length - 1);
 		}
+		this.updateList();
+	};
+	
+	this.changeZoom = function(){
+	    this.timeList.forEach((note) => {
+	        note.changeZoom();
+	    });
 	};
 };

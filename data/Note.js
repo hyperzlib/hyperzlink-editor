@@ -2,12 +2,20 @@ namespace('data').Note = function(father){
 	var piano = father.pianoRoll;
 
 	this.id = 0;
+	this.setId = function(val){
+	    this.id = val;
+	    if(this.dom != null){
+	        this.dom.attr('data-id', val);
+	    }
+	};
+	
 	this.timeId = 0;
 	this.start = 0;
 	this.setStart = function(val){
 		this.start = val;
 		if(this.dom != null){
 			this.dom.css({left: pianoRoll.getTicketPos(val)});
+			this.dom.css({width: pianoRoll.getTicketPos(this.getEnd()) - pianoRoll.getTicketPos(this.start)});
 		}
 	};
 
@@ -34,13 +42,13 @@ namespace('data').Note = function(father){
 	this.lyric = '';
 	this.setLyric = function(val){
 		this.lyric = val;
-		this.dom.find('.note-lyric').text(val);
+		if(this.dom != null) this.dom.find('.note-lyric').text(val);
 	};
 	
 	this.phonm = '';
 	this.setPhonm = function(val){
 		this.phonm = val;
-		this.dom.find('.note-phonm-data').text(val);
+		if(this.dom != null) this.dom.find('.note-phonm-data').text(val);
 	};
 	
 	this.overlay = false;
@@ -87,11 +95,58 @@ namespace('data').Note = function(father){
 			if(this.dom != null) this.dom.removeClass('right-connect');
 		}
 	};
+	
+	this.topConnect = false;
+	this.setTopConnect = function(val){
+		if(val && !this.topConnect){
+			this.topConnect = true;
+			if(this.dom != null) this.dom.addClass('top-connect');
+		} else if(!val && this.topConnect){
+			this.topConnect = false;
+			if(this.dom != null) this.dom.removeClass('top-connect');
+		}
+	};
+	
+	this.bottomConnect = false;
+	this.setBottomConnect = function(val){
+		if(val && !this.bottomConnect){
+			this.bottomConnect = true;
+			if(this.dom != null) this.dom.addClass('bottom-connect');
+		} else if(!val && this.bottomConnect){
+			this.bottomConnect = false;
+			if(this.dom != null) this.dom.removeClass('bottom-connect');
+		}
+	};
 
 	this.dom = null;
+	this.createDom = function(){
+	    this.dom = piano.noteListDom.append('<div class="note-container note-now">\
+			<div class="note-body"><span class="note-lyric"></span><span class="note-phonm">[<span class="note-phonm-data"></span>]</span></div>\
+		</div>').find('.note-now');
+		this.dom.removeClass('note-now');
+		this.dom.find('.note-lyric').text(this.lyric);
+		this.dom.find('.note-phonm-data').text(this.phonm);
+		this.zoomChange();
+		if(this.finished){
+		    this.dom.append('<button class="note-tail"></button>');
+			this.dom.addClass('finished');
+			this.dom.attr('data-id', this.id);
+		}
+	};
+	
+	this.deleteDom = function(){
+	    if(this.dom != null){
+	        this.dom.remove();
+	        this.dom = null;
+	    }
+	};
+	
+	this.zoomChange = function(){
+	    if(this.dom != null) this.dom.css({width: piano.getTicketPos(this.length), height: piano.oneHeight, top: piano.getNoteNumPos(this.pitchNum), left: piano.getTicketPos(this.start)});
+	};
 	
 	this.delete = function(){
-		this.dom.remove();
+		if(this.dom != null) this.dom.remove();
 		father.deleteNote(this);
 	};
 }

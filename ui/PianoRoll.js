@@ -1,3 +1,5 @@
+'use strict';
+
 depends('ui.PianoRoll', [
 	'data.Note',
 	'data.NoteList',
@@ -49,6 +51,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		grabbing: 'pointer',
 	};
 	
+	this.noteListDom = null;
+	
 	this.scales = 5;
 	this.beatLength = 4;
 	this.measureLength = 4;
@@ -91,6 +95,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		this.root.height(height);
 		pianoKeys.height(height - (this.timeLineOneHeight * 4));
 		noteListContainer.height(height - (this.timeLineOneHeight * 4));
+		//滚动到中间
+		noteListContainer.scrollTop(noteList.height() / 2 - noteListContainer.height() / 2);
 	};
 	
 	this.setWidth = function(width){
@@ -106,7 +112,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		this.drawNoteBg();
 		this.drawTimeLine();
 		this.updateTimeLinePtr();
-		this.updateNotes();
+		this.noteList.changeZoom();
 	};
 	
 	this.setBeat = function(beat, measure){
@@ -145,6 +151,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		noteListContainer = this.root.append('<div class="container-piano-notelist"><div class="div-piano-singer-thumb"></div><div class="div-piano-notelist"></div></div>').find(".container-piano-notelist:first");
 		keyPopup = this.root.append('<div class="div-piano-key-popup"><div class="div-piano-notelist"></div></div>').find(".div-piano-key-popup:first");
 		noteList = noteListContainer.find('.div-piano-notelist:first');
+		this.noteListDom = noteList;
 		singerThumb = noteListContainer.find('.div-piano-singer-thumb:first');
 		timeLinePoint = noteList.append('<div class="div-timeline-pointer"></div>').find('.div-timeline-pointer:first');
 		singerThumb.css({position: 'absolute', zIndex: -1});
@@ -259,14 +266,10 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				} else {
 					tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
 					if(tempNoteDom == null){
-						tempNoteDom = noteList.append('<div class="note-container note-now">\
-							<div class="note-body"><span class="note-lyric"></span><span class="note-phonm">[<span class="note-phonm-data"></span>]</span></div>\
-						</div>').find('.note-now');
-						tempNoteDom.removeClass('note-now');
-						tempNoteDom.css({width: this.getTicketPos(tempNote.length), height: this.oneHeight, top: this.getNoteNumPos(tempNote.pitchNum), left: this.getTicketPos(tempNote.start)});
-						tempNote.dom = tempNoteDom
 						var id = this.noteList.add(tempNote);
 						tempNote = this.noteList[id];
+						tempNote.createDom();
+						tempNoteDom = tempNote.dom;
 						tempNote.lyric = this.nextNote.lyric;
 						tempNote.phonm = this.nextNote.phonm;
 					}
@@ -314,7 +317,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				tempNote = _this.noteList[id];
 				tempNoteDom = tempNote.dom;
 				editId = id;
-				editOffset = e.offsetX;
+				editOffset = dom.width() - e.offsetX;
+				console.log(editOffset);
 				_this.setCursor('resize');
 				tempNoteDom.addClass('resizing');
 			}
@@ -338,7 +342,6 @@ namespace('ui').PianoRoll = function(dom, width, height){
 	this.onMouseMove = function(e){
 		var offset = this.getNoteOffset(e);
 		//update popup
-		lastMouseY = offset.y;
 		this.updatePopup(offset.y);
 		//update current position
 		var baseWidth = Math.floor(this.beatWidth * this.zoom / 100);
@@ -371,12 +374,6 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		timeLinePoint.css({height: 5 * 12 * this.oneHeight});
 		noteList.css({width: 10000});
 		noteList.height(5 * 12 * this.oneHeight);
-	};
-	
-	this.updateNotes = function(){
-		this.noteList.forEach((one) => {
-			one.dom.css({width: this.getTicketPos(one.length), height: this.oneHeight, top: this.getNoteNumPos(one.num), left: this.getTicketPos(one.start)});
-		});
 	};
 	
 	this.drawPianoNotes = function(){
@@ -593,8 +590,8 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			this.selectedNote = null;
 		}
 		if(this.noteList[id] !== undefined){
-			tempNote = this.noteList[id];
-			tempNoteDom = tempNote.dom;
+			var tempNote = this.noteList[id];
+			var tempNoteDom = tempNote.dom;
 			this.selectedNote = tempNote;
 			tempNoteDom.addClass('selected');
 			return true;
