@@ -31,6 +31,14 @@
 		<div id="divNavBar"></div>
 		<div id="divPianoRoll"></div>
 	</div>
-	<script src="main.js"></script>
+	<script>
+	    var hz;
+	    loader((use) => {
+	        use('HyperZlink');
+	    }).then(() => {
+	        hz = new HyperZlink();
+	        hz.init();
+	    })
+	</script>
 </body>
 </html>

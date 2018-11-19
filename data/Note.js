@@ -1,5 +1,5 @@
-namespace('data').Note = function(father){
-	var piano = father.pianoRoll;
+namespace('data').Note = function(hz, father){
+	var pianoRoll = hz.pianoRoll;
 
 	this.id = 0;
 	this.setId = function(val){
@@ -120,7 +120,7 @@ namespace('data').Note = function(father){
 
 	this.dom = null;
 	this.createDom = function(){
-	    this.dom = piano.noteListDom.append('<div class="note-container note-now">\
+	    this.dom = pianoRoll.noteListDom.append('<div class="note-container note-now">\
 			<div class="note-body"><span class="note-lyric"></span><span class="note-phonm">[<span class="note-phonm-data"></span>]</span></div>\
 		</div>').find('.note-now');
 		this.dom.removeClass('note-now');
@@ -142,7 +142,7 @@ namespace('data').Note = function(father){
 	};
 	
 	this.zoomChange = function(){
-	    if(this.dom != null) this.dom.css({width: piano.getTicketPos(this.length), height: piano.oneHeight, top: piano.getNoteNumPos(this.pitchNum), left: piano.getTicketPos(this.start)});
+	    if(this.dom != null) this.dom.css({width: pianoRoll.getTicketPos(this.length), height: pianoRoll.oneHeight, top: pianoRoll.getNoteNumPos(this.pitchNum), left: pianoRoll.getTicketPos(this.start)});
 	};
 	
 	this.delete = function(){

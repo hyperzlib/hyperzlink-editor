@@ -7,7 +7,7 @@ depends('ui.PianoRoll', [
 	'events.EventEmitter'
 ]);
 
-namespace('ui').PianoRoll = function(dom, width, height){
+namespace('ui').PianoRoll = function(hz, dom, width, height){
     var eventEmitter = new events.EventEmitter();
     
 	var noteList;
@@ -81,7 +81,7 @@ namespace('ui').PianoRoll = function(dom, width, height){
 		timeLinePoint: '#009933',
 	};
 	this.position = 0;
-	this.noteList = new data.NoteList(this);
+	this.noteList = new data.NoteList(hz);
 	this.selectedNote = null;
 	this.nextNote = {lyric: 'a', phonm: 'a'};
 	
@@ -318,23 +318,26 @@ namespace('ui').PianoRoll = function(dom, width, height){
 				tempNoteDom = tempNote.dom;
 				editId = id;
 				editOffset = dom.width() - e.offsetX;
-				console.log(editOffset);
 				_this.setCursor('resize');
 				tempNoteDom.addClass('resizing');
 			}
 		});
 		
-		//选中或移动音符处理
+		//移动或删除音符处理
 		noteList.on('mousedown', '.note-body', function(e){
 			var dom = $(this);
 			var id = parseInt(dom.parent('.note-container').attr('data-id'));
-			editId = id;
-			moveMode = true;
-			editOffset = e.offsetX;
-			_this.setCursor('grabbing');
-			if(_this.selectNote(id)){
-				tempNote = _this.selectedNote;
-				tempNoteDom = tempNote.dom;
+			if(_this.currentTool == _this.toolsId.eraser){
+			    _this.deleteNote(id);
+			} else {
+    			editId = id;
+    			moveMode = true;
+    			editOffset = e.offsetX;
+    			_this.setCursor('grabbing');
+    			if(_this.selectNote(id)){
+    				tempNote = _this.selectedNote;
+    				tempNoteDom = tempNote.dom;
+    			}
 			}
 		});
 	};
@@ -594,6 +597,15 @@ namespace('ui').PianoRoll = function(dom, width, height){
 			var tempNoteDom = tempNote.dom;
 			this.selectedNote = tempNote;
 			tempNoteDom.addClass('selected');
+			return true;
+		} else {
+			return false;
+		}
+	};
+	
+	this.deleteNote = function(id){
+		if(this.noteList[id] !== undefined){
+			this.noteList[id].delete();
 			return true;
 		} else {
 			return false;

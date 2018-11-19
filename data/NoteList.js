@@ -2,14 +2,12 @@ depends('ui.PianoRoll', [
 	'data.Note'
 ]);
 
-namespace('data').NoteList = function(pianoRoll){
-    this.pianoRoll = pianoRoll;
-    
+namespace('data').NoteList = function(hz){
 	var baseHandle = {
 		get: (obj, name) => {
 			if(typeof name == 'string'){
 				var member = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1);
-				if(obj[member] != undefined){
+				if(obj[member] !== undefined){
 					return obj[member]();
 				} else {
 					return obj[name];
@@ -21,7 +19,7 @@ namespace('data').NoteList = function(pianoRoll){
 		set: (obj, name, value) => {
 			if(typeof name == 'string'){
 				var member = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1);
-				if(obj[member] != undefined){
+				if(obj[member] !== undefined){
 					obj[member](value);
 				} else {
 					obj[name] = value;
@@ -31,14 +29,14 @@ namespace('data').NoteList = function(pianoRoll){
 			}
 			return obj[name];
 		},
-	}
+	};
 	
 	this.timeList = [];
 	
 	this.length = 0;
 	this.add = function(note){
-		var tempNote = new Proxy(new data.Note(this), baseHandle);
-		if(note != undefined){
+		var tempNote = new Proxy(new data.Note(hz, this), baseHandle);
+		if(note !== undefined){
 			for(var key in note){
 				tempNote[key] = note[key];
 			}
@@ -85,19 +83,22 @@ namespace('data').NoteList = function(pianoRoll){
 				now.leftConnect = false;
 			}
 		}
-		list[0].leftConnect = false;
-		list[list.length - 1].rightConnect = false;
+		if(this.length > 0){
+    		list[0].leftConnect = false;
+    		list[list.length - 1].rightConnect = false;
+		}
 	};
 	
 	this.deleteNote = function(note){
-		if(note.id != undefined && this[note.id] != undefined){
+		if(note.id !== undefined && this[note.id] !== undefined){
 			for(var i = note.id; i < this.length - 1; i ++){
 			    this[i] = this[i + 1];
 			    if(this[i] !== undefined) this[i].id = i;
 			}
-			delete this[-- this.length];
+			delete this[this.length - 1];
+			this.length --;
 		}
-		if(note.timeId != undefined && this.timeList[note.timeId] != undefined){
+		if(note.timeId !== undefined && this.timeList[note.timeId] !== undefined){
 		    var list = this.timeList;
 			delete list[note.timeId];
 			var t;
