@@ -54,15 +54,33 @@ namespace('data').NoteList = function(hz){
 	};
 	
 	this.updateList = function(id){
-		var list = this.timeList;
-		//排序列表
-		list = list.sort((a, b) => {
-			return a.start - b.start;
-		});
-		list.forEach((data, key) => {
-			data.timeId = key;
-		});
+		if(id == undefined){
+			var list = this.timeList;
+			//排序列表
+			list = list.sort((a, b) => {
+				return a.start - b.start;
+			});
+			list.forEach((data, key) => {
+				data.timeId = key;
+			});
+		} else {
+			//部分排序
+			var list = this.timeList;
+			var t;
+			for(var i = 1; i < list.length; i ++){
+				if(list[i - 1].start > list[i].start){
+					t = list[i - 1];
+					list[i - 1] = list[i];
+					list[i] = t;
+				}
+			}
+		}
+		this.updateConnect(id);
+	};
+	
+	this.updateConnect = function(id){
 		//计算重叠
+		var list = this.timeList;
 		for(var i = 1; i < list.length; i ++){
 			var prev = list[i - 1];
 			var now = list[i];
@@ -75,17 +93,29 @@ namespace('data').NoteList = function(hz){
 				prev.overlay = false;
 				now.overlay = false;
 			}
-			if(prev.pitchNum == now.pitchNum && prev.end == now.start){
-				prev.rightConnect = true;
-				now.leftConnect = true;
+			if(prev.end == now.start){
+				if(prev.pitchNum == now.pitchNum){
+					prev.rightConnect = true;
+					now.leftConnect = true;
+				} else if(prev.pitchNum < now.pitchNum){
+					prev.rightTopConnect = true;
+					now.leftBottomConnect = true;
+				} else if(prev.pitchNum > now.pitchNum){
+					prev.rightBottomConnect = true;
+					now.leftTopConnect = true;
+				}
 			} else {
 				prev.rightConnect = false;
+				prev.rightTopConnect = false;
+				prev.rightBottomConnect = false;
 				now.leftConnect = false;
+				now.leftTopConnect = false;
+				now.leftBottomConnect = false;
 			}
 		}
 		if(this.length > 0){
-    		list[0].leftConnect = false;
-    		list[list.length - 1].rightConnect = false;
+			list[0].leftConnect = false;
+			list[list.length - 1].rightConnect = false;
 		}
 	};
 	
@@ -107,7 +137,7 @@ namespace('data').NoteList = function(hz){
 			}
 			list.splice(list.length - 1);
 		}
-		this.updateList();
+		this.updateConnect();
 	};
 	
 	this.changeZoom = function(){

@@ -106,12 +106,12 @@ input {
     border-bottom-left-radius: 0;
 }
 
-.note-container.left-connect.top-connect {
+.note-container.left-top-connect {
     border-top-left-radius: 0;
     border-bottom-left-radius: 3px;
 }
 
-.note-container.left-connect.bottom-connect {
+.note-container.left-bottom-connect {
     border-top-left-radius: 3px;
     border-bottom-left-radius: 0;
 }
@@ -122,13 +122,13 @@ input {
     border-right: 2px solid #008cb7;
 }
 
-.note-container.right-connect.top-connect {
+.note-container.right-top-connect {
     border-top-right-radius: 0;
     border-bottom-right-radius: 3px;
     border-right: none;
 }
 
-.note-container.right-connect.bottom-connect {
+.note-container.right-bottom-connect {
     border-top-right-radius: 3px;
     border-bottom-right-radius: 0;
     border-right: none;

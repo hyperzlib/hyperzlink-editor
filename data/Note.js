@@ -12,6 +12,7 @@ namespace('data').Note = function(hz, father){
 	this.timeId = 0;
 	this.start = 0;
 	this.setStart = function(val){
+		val = Math.max(1, val);
 		this.start = val;
 		if(this.dom != null){
 			this.dom.css({left: pianoRoll.getTicketPos(val)});
@@ -84,6 +85,28 @@ namespace('data').Note = function(hz, father){
 			if(this.dom != null) this.dom.removeClass('left-connect');
 		}
 	};
+	
+	this.leftTopConnect = false;
+	this.setLeftTopConnect = function(val){
+		if(val && !this.leftTopConnect){
+			this.leftTopConnect = true;
+			if(this.dom != null) this.dom.addClass('left-top-connect');
+		} else if(!val && this.leftTopConnect){
+			this.leftTopConnect = false;
+			if(this.dom != null) this.dom.removeClass('left-top-connect');
+		}
+	};
+	
+	this.leftBottomConnect = false;
+	this.setLeftBottomConnect = function(val){
+		if(val && !this.leftBottomConnect){
+			this.leftBottomConnect = true;
+			if(this.dom != null) this.dom.addClass('left-bottom-connect');
+		} else if(!val && this.leftBottomConnect){
+			this.leftBottomConnect = false;
+			if(this.dom != null) this.dom.removeClass('left-bottom-connect');
+		}
+	};
 
 	this.rightConnect = false;
 	this.setRightConnect = function(val){
@@ -96,25 +119,25 @@ namespace('data').Note = function(hz, father){
 		}
 	};
 	
-	this.topConnect = false;
-	this.setTopConnect = function(val){
-		if(val && !this.topConnect){
-			this.topConnect = true;
-			if(this.dom != null) this.dom.addClass('top-connect');
-		} else if(!val && this.topConnect){
-			this.topConnect = false;
-			if(this.dom != null) this.dom.removeClass('top-connect');
+	this.rightTopConnect = false;
+	this.setRightTopConnect = function(val){
+		if(val && !this.rightTopConnect){
+			this.rightTopConnect = true;
+			if(this.dom != null) this.dom.addClass('right-top-connect');
+		} else if(!val && this.rightTopConnect){
+			this.rightTopConnect = false;
+			if(this.dom != null) this.dom.removeClass('right-top-connect');
 		}
 	};
 	
-	this.bottomConnect = false;
-	this.setBottomConnect = function(val){
-		if(val && !this.bottomConnect){
-			this.bottomConnect = true;
-			if(this.dom != null) this.dom.addClass('bottom-connect');
-		} else if(!val && this.bottomConnect){
-			this.bottomConnect = false;
-			if(this.dom != null) this.dom.removeClass('bottom-connect');
+	this.rightBottomConnect = false;
+	this.setRightBottomConnect = function(val){
+		if(val && !this.rightBottomConnect){
+			this.rightBottomConnect = true;
+			if(this.dom != null) this.dom.addClass('right-bottom-connect');
+		} else if(!val && this.rightBottomConnect){
+			this.rightBottomConnect = false;
+			if(this.dom != null) this.dom.removeClass('right-bottom-connect');
 		}
 	};
 

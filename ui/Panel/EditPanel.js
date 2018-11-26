@@ -32,23 +32,29 @@ namespace('ui.Panel').EditPanel = function(){
     };
 
     this.bindEvent = function(){
-        var zoomSlider = this.dom.find('#pianoroll-zoom-slider');
-        zoomShow = zoomSlider.next('.zoom-show');
-        zoomSlider.on('slide', function(event, ui){
-            zoomShow.val(ui.value);
-        });
-        zoomSlider.on('slidestop', function(event, ui){
-            eventEmitter.emit('zoomchange', ui.value);
-            lastZoomVal = ui.value;
-        });
-        /*zoomShow.on('focus', function(){
-            $(this).select();
-        });*/
+        var zoomPlus = this.dom.find('#btn-zoomctrl-plus');
+        var zoomMinus = this.dom.find('#btn-zoomctrl-minus');
+        zoomShow = $('#editpanel-zoom-control .zoom-show');
+        zoomPlus.click(function(){
+			var val = parseInt(zoomShow.val());
+			val += 10;
+            if(val >= 50 && val <= 500){
+                eventEmitter.emit('zoomchange', val);
+                zoomShow.val(val);
+            }
+		});
+		zoomMinus.click(function(){
+			var val = parseInt(zoomShow.val());
+			val -= 10;
+            if(val >= 50 && val <= 500){
+                eventEmitter.emit('zoomchange', val);
+                zoomShow.val(val);
+            }
+		});
         zoomShow.on('change', function(){
             var val = parseInt($(this).val());
             if(val >= 50 && val <= 500){
                 eventEmitter.emit('zoomchange', val);
-                zoomSlider.slider('value', val);
                 lastZoomVal = val;
             } else {
                 $(this).val(lastZoomVal);

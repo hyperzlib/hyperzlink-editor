@@ -18,6 +18,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 	var noteListContainer;
 	var timeLineHeader;
 	var timeLine;
+	var posLine;
 	var singerThumb;
 	var singerThumbImg;
 	var noteListScroll;
@@ -27,6 +28,10 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 	var lastNotePos = 0;
 	/*var lastMouseY = 0;
 	var lastScroll = 0;*/
+	
+	var showPosLine = false;
+	var posFollowMouse = true;
+	
 	this.subNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 	
 	this.currentTool = 0;
@@ -79,6 +84,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		bgAlpha: 0.65,
 		noteListBg: '#ffffff',
 		timeLinePoint: '#009933',
+		posLine: '#666666',
 	};
 	this.position = 0;
 	this.noteList = new data.NoteList(hz);
@@ -154,6 +160,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		this.noteListDom = noteList;
 		singerThumb = noteListContainer.find('.div-piano-singer-thumb:first');
 		timeLinePoint = noteList.append('<div class="div-timeline-pointer"></div>').find('.div-timeline-pointer:first');
+		posLine = noteList.append('<div class="div-posline"></div>').find('.div-posline:first');
 		singerThumb.css({position: 'absolute', zIndex: -1});
 		singerThumbImg = singerThumb.append('<img style="display: none"></img>').find('img:first');
 		headerPanel.css({display: 'inline-block', float: 'left'});
@@ -163,6 +170,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		timeLineHeader.css({float: 'left', zIndex: 200, position: 'relative'});
 		timeLine.css({display: 'inline-block', float: 'left'});
 		timeLinePoint.css({position: 'absolute', display: 'inline-block', zIndex: 50, width: 2, backgroundColor: this.color.timeLinePoint, left: -1, overflow: 'hidden'});
+		posLine.css({position: 'absolute', display: 'none', zIndex: 51, width: 2, backgroundColor: this.color.posLine, left: -1, overflow: 'hidden', pointerEvents: 'none'});
 		keyPopup.css({zIndex: 101});
 		this.bindEvents();
 		this.update();
@@ -251,6 +259,8 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 				if(this.currentTool == this.toolsId.pencil){
 					tempNote = {pitchNum: this.getMouseNoteNum(offset.y), start: this.doQuantize(this.getMouseTicket(offset.x), this.quantize), length: 0};
 				}
+				posFollowMouse = false;
+				posLine.css('left', this.getTicketPos(tempNote.start) - 1);
 				//取消当前选中
 				if(this.selectedNote != null){
 					this.selectedNote.dom.removeClass('selected');
@@ -263,6 +273,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 				if(moveMode){
 					tempNote.start = Math.max(0, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantize));
 					tempNote.pitchNum = this.getMouseNoteNum(offset.y);
+					posLine.css('left', this.getTicketPos(tempNote.start) - 1);
 				} else {
 					tempNote.length = Math.max(60, this.doQuantize(this.getMouseTicket(offset.x + editOffset), this.quantizeLen) - tempNote.start);
 					if(tempNoteDom == null){
@@ -273,6 +284,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 						tempNote.lyric = this.nextNote.lyric;
 						tempNote.phonm = this.nextNote.phonm;
 					}
+					posLine.css('left', this.getTicketPos(tempNote.end) - 1);
 				}
 			}
 		}).mouseup((e) => {
@@ -281,6 +293,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 					tempNote = null;
 				} else {
 					var offset = this.getNoteOffset(e);
+					var tempId = tempNote.id;
 					if(moveMode){
 						tempNote.start = Math.max(0, this.doQuantize(this.getMouseTicket(offset.x - editOffset), this.quantize));
 						tempNote.pitchNum = this.getMouseNoteNum(offset.y);
@@ -304,7 +317,11 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 						tempNote = null;
 						tempNoteDom = null;
 					}
-					this.noteList.updateList();
+					this.noteList.updateList(tempId);
+				}
+				posFollowMouse = true;
+				if(!showPosLine){
+					posLine.css('display', 'none');
 				}
 			}
 		});
@@ -320,6 +337,10 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 				editOffset = dom.width() - e.offsetX;
 				_this.setCursor('resize');
 				tempNoteDom.addClass('resizing');
+				posFollowMouse = false;
+    			if(!showPosLine){
+					posLine.css('display', 'inline-block');
+				}
 			}
 		});
 		
@@ -338,6 +359,10 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
     				tempNote = _this.selectedNote;
     				tempNoteDom = tempNote.dom;
     			}
+				posFollowMouse = false;
+				if(!showPosLine){
+					posLine.css('display', 'inline-block');
+				}
 			}
 		});
 	};
@@ -346,16 +371,20 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		var offset = this.getNoteOffset(e);
 		//update popup
 		this.updatePopup(offset.y);
-		//update current position
-		var baseWidth = Math.floor(this.beatWidth * this.zoom / 100);
-		var mouseX = offset.x;
-		var beatPos = Math.floor(mouseX / baseWidth);
-		var measurePos = Math.floor(beatPos / this.beatLength);
-		var beatPos = beatPos % this.beatLength;
-		var grid = this.resolution / this.quantize;
-		var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution);
-		ticket = ticket - ticket % grid;
-		eventEmitter.emit('position.cursor', measurePos, beatPos, ticket);
+		if(posFollowMouse){
+			//update current position
+			var baseWidth = Math.floor(this.beatWidth * this.zoom / 100);
+			var mouseX = offset.x;
+			var beatPos = Math.floor(mouseX / baseWidth);
+			var measurePos = Math.floor(beatPos / this.beatLength);
+			var beatPos = beatPos % this.beatLength;
+			var grid = this.resolution / this.quantize;
+			var ticket = Math.round((mouseX % baseWidth) / (baseWidth - 1) * this.resolution);
+			ticket = ticket - ticket % grid;
+			eventEmitter.emit('position.cursor', measurePos, beatPos, ticket);
+			var ticket = this.getLeft() + Math.max(0, e.pageX - this.pianoNoteWidth);
+			posLine.css('left', ticket);
+		}
 	};
 	
 	this.update = function(){
@@ -375,6 +404,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		this.drawNoteBg();
 		noteListContainer.css({height: (this.height - (this.timeLineOneHeight * 4)) + 'px'});
 		timeLinePoint.css({height: 5 * 12 * this.oneHeight});
+		posLine.css({height: 5 * 12 * this.oneHeight});
 		noteList.css({width: 10000});
 		noteList.height(5 * 12 * this.oneHeight);
 	};
@@ -728,6 +758,13 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 			case 1:
 				this.setCursor('pencil');
 				break;
+		}
+		if(this.currentTool == 1){
+			posLine.css('display', 'inline-block');
+			showPosLine = true;
+		} else {
+			posLine.css('display', 'none');
+			showPosLine = false;
 		}
 	};
 	
