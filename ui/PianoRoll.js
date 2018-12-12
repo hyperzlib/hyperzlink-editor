@@ -48,7 +48,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 	this.width = width;
 	this.height = height;
 	this.beatWidth = 60;
-	this.offset = 0;             //单位：ticket
+	this.offset = 10250;             //单位：ticket
 
 	this.cursors = {
 		cursor: 'default',
@@ -500,7 +500,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		ctx.fillStyle = measureColor;
 		ctx.fillRect(width - 2, 0, 2, height);
 		//转为背景图
-		var positionX = 1 + this.offset % (this.resolution * this.measureLength);
+		var positionX = this.getTicketPos(this.offset) + 1;
 		noteList.css({backgroundImage: "url('" + tempCanvas[0].toDataURL() + "')", backgroundPositionX: positionX});
 	};
 
@@ -582,7 +582,8 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		ctx.fillStyle = mainLineColor;
 		ctx.fillRect(0, pos, width, 1);
 		ctx.fillStyle = divLineColor;
-		timeLine.css({backgroundImage: "url('" + tempCanvas[0].toDataURL() + "')"});
+		var positionX = this.getTicketPos(this.offset % (this.resolution * this.measureLength));
+		timeLine.css({backgroundImage: "url('" + tempCanvas[0].toDataURL() + "')", backgroundPositionX: positionX});
 		this.updateTimeLine();
 	};
 
@@ -684,6 +685,15 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 	//根据ticket获取坐标
 	this.getTicketPos = function(tik){
 		return Math.floor((tik + this.getTikOffset()) * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
+	};
+
+	this.getTicketOffset = function(real){
+		var pos = Math.floor(this.offset * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
+		if(real === true){
+			return pos % (this.measureLength * Math.floor(this.beatWidth * this.zoom / 100));
+		} else {
+			return pos;
+		}
 	};
 
 	//根据音的数字获取音符标签

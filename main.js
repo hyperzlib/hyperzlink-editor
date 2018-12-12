@@ -51,11 +51,11 @@ loader((use) => {
     }
 	
 	pianoRoll.on('position.cursor', function(measurePos, beatPos, ticket){
-        editPanel.setValue('cursor', (measurePos + 1) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
+        editPanel.setValue('cursor', fillZero(measurePos + 1, 3) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
     });
 
     pianoRoll.on('position.now', function(measurePos, beatPos, ticket){
-        editPanel.setValue('nowPos', (measurePos + 1) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
+        editPanel.setValue('nowPos', fillZero(measurePos + 1, 3) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
     });
 	
 	editPanel.on('zoomchange', (zoom) => {

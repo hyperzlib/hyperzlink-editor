@@ -60,11 +60,11 @@ var HyperZlink = function(){
             }
         	
         	this.pianoRoll.on('position.cursor', (measurePos, beatPos, ticket) => {
-                this.editPanel.setValue('cursor', (measurePos + 1) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
+                this.editPanel.setValue('cursor', fillZero(measurePos + 1, 3) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
             });
         
             this.pianoRoll.on('position.now', (measurePos, beatPos, ticket) => {
-                this.editPanel.setValue('nowPos', (measurePos + 1) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
+                this.editPanel.setValue('nowPos', fillZero(measurePos + 1, 3) + ':' + (beatPos + 1) + ':' + fillZero(ticket, 3))
             });
         	
         	this.editPanel.on('zoomchange', (zoom) => {
