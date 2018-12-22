@@ -5,6 +5,10 @@
     font-family: sans-serif, 'Microsoft Yahei', Simhei;
 }
 
+.div-edit-panel {
+    z-index: 250;
+}
+
 .ui-button-i {
     padding: 4px 1em;
 }
@@ -33,6 +37,29 @@
 
 button {
     outline: none;
+}
+
+.ui-menu .ui-menu-item-wrapper {
+    position: relative;
+    padding: 2px 1em 2px .4em;
+    font-size: 14px;
+}
+
+.ui-menu .ui-menu-divider {
+    position: relative;
+    width: 100%;
+    float: left;
+    padding: 0px;
+    margin: 2px 0px;
+    border: none;
+    height: 0;
+}
+
+.ui-menu .ui-menu-divider hr {
+    border-top-width: 1px;
+    border-top-color: #808080;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(197, 197, 197);
 }
 
 .form-control {

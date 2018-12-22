@@ -45,7 +45,7 @@ namespace('ui').MenuBar = function(dom){
     ${dom} .ui-menu {
         width: 150px;
         position: fixed;
-        z-index: 200;
+        z-index: 300;
     }
 
     ${dom} .underline{
@@ -160,16 +160,24 @@ namespace('ui').MenuBar = function(dom){
             root.hide();
         };
         
-        this.addMenuItem = function(name, label, callback){
+        this.addMenuItem = function(name, label = '', callback = null, shortcut = null, globalShortcut = null){
             var _this = this;
-            var dom = root.append(`<li class="list-menu-item-${name}"><div>${label}</div></li>`).find('li:last');
-            menuDomList[name] = dom;
-            if(typeof callback != 'undefined'){
-                dom.click(callback);
+            if(name == '-'){
+                var dom = root.append(`<li class="list-menu-item-hr ui-menu-divider"><hr /></li>`).find('li:last');
+                root.menu('refresh');
+            } else {
+                var dom = root.append(`<li class="list-menu-item-${name}"><div><span>${label}</span></div></li>`).find('li:last');
+                if(shortcut != null){
+                    dom.find('div:first').append(`<span> (${shortcut})</span>`);
+                }
+                menuDomList[name] = dom;
+                if(typeof callback != 'undefined'){
+                    dom.click(callback);
+                }
+                dom.click(onClose);
+                root.menu('refresh');
             }
-            dom.click(onClose);
-            root.menu('refresh');
-        };
+        }
 
         this.removeMenuItem = function(name){
             if(typeof menuDomList[name] != 'undefined'){

@@ -687,6 +687,16 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 		return Math.floor((tik + this.getTikOffset()) * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
 	};
 
+	/*this.getTicketOffsetPos = function(unit = 0){
+		//计算偏移量
+		var pos = this.offset;
+		if(unit != 0){
+			pos = unit - pos % unit;
+		}
+		Math.floor(pos * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
+		return pos;
+	};*/
+
 	this.getTicketOffset = function(real){
 		var pos = Math.floor(this.offset * Math.floor(this.beatWidth * this.zoom / 100) / this.resolution);
 		if(real === true){
@@ -730,10 +740,10 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 	};
 	
 	this.updatePopup = function(height, absolute){
-		var nIndex = this.getMouseNoteNum(height);
+		var nIndex = Math.max(0, this.getMouseNoteNum(height));
 		var label = this.getNoteLabel(nIndex, true);
 		var sPos = (this.scales * 12 - 1 - nIndex) * this.oneHeight - 3;
-		var keyPopupPos = noteListContainer.offset().top - noteListContainer.scrollTop() + sPos;
+		var keyPopupPos = Math.max(0, noteListContainer.offset().top - noteListContainer.scrollTop() + sPos);
 		if(lastNotePos != keyPopupPos || lastPopupLabel != label){
 			keyPopup.show();
 			if(lastNotePos != keyPopupPos){
@@ -792,7 +802,7 @@ namespace('ui').PianoRoll = function(hz, dom, width, height){
 			}
 		}
 		return 'point';
-	}
+	};
 	
 	this.setPos = overload((position) => {
 		this.position = position;

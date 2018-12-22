@@ -1,5 +1,5 @@
-var HyperZlink = function(){
-    this.resize = function(){
+class HyperZlink{
+    resize(){
         var width = $(window).width();
         var height = $(window).height();
         this.navBar.setWidth(width);
@@ -8,27 +8,29 @@ var HyperZlink = function(){
         this.pianoRoll.setWidth(width);
     }
     
-    this.changeHeight = function(){
+    changeHeight(){
         var height = $(window).height();
         height -= this.menuBar.height;
         height -= this.navBar.getHeight();
         this.pianoRoll.setHeight(height);
     }
     
-	this.init = function(){
+	init(){
 	    loader((use) => {
             use('ui.MenuBar');
             use('ui.NavBar');
             use('ui.PianoRoll');
             use('ui.Panel.EditPanel');
+            use('controller.MainMenu');
         }).then(() => {
             var heightMenuBar = 23;
             this.menuBar = new ui.MenuBar('#divMenuBar');
             this.menuBar.setHeight(heightMenuBar);
             this.navBar = new ui.NavBar('#divNavBar');
+            this.mainMenu = new controller.MainMenu(this.menuBar);
             this.pianoRoll = new ui.PianoRoll(this, '#divPianoRoll');
             this.editPanel = new ui.Panel.EditPanel();
-            //pianoRoll.setThumb('res/thumb.png');
+            this.pianoRoll.setThumb('res/thumb.png');
             $(window).resize(() => {
                 this.resize();
             });
@@ -41,15 +43,6 @@ var HyperZlink = function(){
             this.navBar.addTab('edit', 'Edit');
             this.navBar.bindPanel('edit', this.editPanel);
             this.navBar.addTab('track', 'Track');
-        
-            this.menuBar.addNav('file', 'File', 'F');
-            this.menuBar.file.addMenuItem('open', 'Open', function(){console.log('opened')});
-        
-            this.menuBar.addNav('edit', 'Edit', 'E');
-            this.menuBar.addNav('voice', 'Voice', 'V');
-            this.menuBar.addNav('synthetize', 'Synthetize', 'T');
-            this.menuBar.addNav('setting', 'Setting', 'S');
-            this.menuBar.addNav('help', 'Help', 'H');
             
             this.editPanel.on(true, (...args) => {console.log(args)});
         
