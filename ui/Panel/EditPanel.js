@@ -1,9 +1,8 @@
-depends('ui.Panel.EditPanel', [
-    'ui.Panel.Panel',
-    'events.EventEmitter',
-]);
+//import ui.Panel.Panel
+//import events.EventEmitter
 
-namespace('ui.Panel').EditPanel = function(){
+//namespace ui.Panel
+function EditPanel(){
     var controlDom;
     var editDom;
     var zoomSilder, zoomShow;

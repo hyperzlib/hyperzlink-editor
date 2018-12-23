@@ -1,41 +1,43 @@
-depends('ui.PianoRoll', [
-	'data.Note'
-]);
+//import data.Note
 
-namespace('data').NoteList = function(hz){
-	var baseHandle = {
-		get: (obj, name) => {
-			if(typeof name == 'string'){
-				var member = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1);
-				if(obj[member] !== undefined){
-					return obj[member]();
-				} else {
-					return obj[name];
-				}
+//namespace data
+var baseHandle = {
+	get: (obj, name) => {
+		if(typeof name == 'string'){
+			var member = 'get' + name.substr(0, 1).toUpperCase() + name.substr(1);
+			if(obj[member] !== undefined){
+				return obj[member]();
 			} else {
 				return obj[name];
 			}
-		},
-		set: (obj, name, value) => {
-			if(typeof name == 'string'){
-				var member = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1);
-				if(obj[member] !== undefined){
-					obj[member](value);
-				} else {
-					obj[name] = value;
-				}
+		} else {
+			return obj[name];
+		}
+	},
+	set: (obj, name, value) => {
+		if(typeof name == 'string'){
+			var member = 'set' + name.substr(0, 1).toUpperCase() + name.substr(1);
+			if(obj[member] !== undefined){
+				obj[member](value);
 			} else {
 				obj[name] = value;
 			}
-			return obj[name];
-		},
-	};
+		} else {
+			obj[name] = value;
+		}
+		return obj[name];
+	},
+};
+
+class NoteList {
+	constructor(hz){
+		this.timeList = [];
+		this.parent = hz;
+		this.length = 0;
+	}
 	
-	this.timeList = [];
-	
-	this.length = 0;
-	this.add = function(note){
-		var tempNote = new Proxy(new data.Note(hz, this), baseHandle);
+	add(note){
+		var tempNote = new Proxy(new data.Note(this.parent, this), baseHandle);
 		if(note !== undefined){
 			for(var key in note){
 				tempNote[key] = note[key];
@@ -44,16 +46,16 @@ namespace('data').NoteList = function(hz){
 		var id = this.push(tempNote);
 		tempNote.id = id;
 		return id;
-	};
+	}
 	
-	this.push = function(val){
+	push(val){
 		this[this.length] = val;
 		this.timeList.push(val);
 		this.length ++;
 		return this.length - 1;
-	};
+	}
 	
-	this.updateList = function(id){
+	updateList(id){
 		if(id == undefined){
 			var list = this.timeList;
 			//排序列表
@@ -76,9 +78,9 @@ namespace('data').NoteList = function(hz){
 			}
 		}
 		this.updateConnect(id);
-	};
+	}
 	
-	this.updateConnect = function(id){
+	updateConnect(id){
 		//计算重叠
 		var list = this.timeList;
 		for(var i = 1; i < list.length; i ++){
@@ -117,9 +119,9 @@ namespace('data').NoteList = function(hz){
 			list[0].leftConnect = false;
 			list[list.length - 1].rightConnect = false;
 		}
-	};
+	}
 	
-	this.deleteNote = function(note){
+	deleteNote(note){
 		if(note.id !== undefined && this[note.id] !== undefined){
 			for(var i = note.id; i < this.length - 1; i ++){
 			    this[i] = this[i + 1];
@@ -138,11 +140,11 @@ namespace('data').NoteList = function(hz){
 			list.splice(list.length - 1);
 		}
 		this.updateConnect();
-	};
+	}
 	
-	this.changeZoom = function(){
+	changeZoom(){
 	    this.timeList.forEach((note) => {
 	        note.changeZoom();
 	    });
-	};
+	}
 };

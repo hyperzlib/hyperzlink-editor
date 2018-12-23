@@ -1,3 +1,22 @@
+//先定义这个类最基本的方法，后期再进行重载
+var data = {};
+data.fs = {
+	readFile: async function(url, type = 'text'){
+		var response = await fetch(url);
+		if(Math.floor(response.status / 100) == 2){
+			var data;
+			switch(type){
+				case 'text':
+					data = await response.text();
+					break;
+			}
+			return data;
+		} 
+	}
+};
+
+var loadedClasses = [];
+
 function getBaseDir(){
 	return location.href.substr(0, location.href.lastIndexOf('/')) + '/';
 }
@@ -21,6 +40,10 @@ function arrcmp(arr1, arr2){
 }
 
 function isClassExists(cname){
+	if(loadedClasses.indexOf(cname) != -1){
+		return true;
+	}
+
 	var t;
 	var subList = cname.split('.');
 	for(var key in subList){
@@ -74,10 +97,123 @@ if(typeof importScripts == 'function'){
     };
 }
 
+function DOMEval(code) {
+	var doc = document;
+	var i, script = doc.createElement( "script" );
+	script.text = code;
+	doc.head.appendChild( script ).parentNode.removeChild( script );
+}
+
 function fRun(callback){
     if(typeof callback == 'function'){
         callback();
     }
+}
+
+function strstr(str1, str2, offset = 0){
+	if(str2.length < str1.length) return false;
+	else return str1.substr(offset, str1.length - offset) == str2.substr(offset, str1.length - offset);
+}
+
+function splitArgs(str){
+	var ret = [];
+	var args = str.split(' ');
+	var buffer = [];
+	var inString = false;
+	var t;
+	args.forEach((argv) => {
+		if(inString){ //在string内
+			if(argv.length > 2){
+				t = argv.substr(-2, 2);
+				if(t != '\\\'' && t != '\\"' && (t[1] == '\'' || t[1] == '"')){ //结束string
+					inString = false;
+					buffer.push(argv.substr(0, argv.length - 1));
+					ret.push(buffer.join(' '));
+					buffer = [];
+				} else {
+					buffer.push(argv);
+				}
+			} else {
+				buffer.push(argv);
+			}
+		} else { //string外
+			if(argv != ''){
+				if(argv[0] != '\'' && argv[0] != '"'){
+					ret.push(argv);
+				} else { //入string
+					t = argv.substr(-2, 2);
+					if(t != '\\\'' && t != '\\"' && (t[1] == '\'' || t[1] == '"')){
+						ret.push(argv.substr(1, argv.length - 2));
+					} else {
+						inString = true;
+						buffer.push(argv.substr(1));
+					}
+				}
+			}
+		}
+	});
+	return ret;
+}
+
+function parseImport(line){
+	var args = splitArgs(line.substr(line.indexOf(' ') + 1));
+	var ret = {
+		className: '',
+		refName: '',
+		url: '',
+	};
+	ret.className = args[0];
+	ret.refName = ret.className.substr(ret.className.lastIndexOf('.') + 1);
+	ret.url = ret.className.replace(/\./g, '/') + '.js';
+	for(var i = 1; i + 1 < args.length; i ++){
+		switch(args[i]){
+			case 'as':
+				ret.refName = args[++ i];
+				break;
+			case 'from':
+				ret.url = args[++ i];
+		}
+	}
+	return ret;
+}
+
+function parseScript(script, namespace = ''){
+	//先解析控制字符
+	var lines = script.split('\n');
+	var preCodes = []; //起始代码（类快捷赋值等）
+	var endCodes = []; //终止代码（namespace赋值）
+	var ret = {
+		depends: [],
+		script: '',
+	};
+	var nsPath = namespace.split('.');
+	var orderNs = namespace.substr(0, namespace.lastIndexOf('.'));
+	var className = nsPath[nsPath.length - 1];
+	for(var i in lines){
+		var line = lines[i].trim();
+		if(strstr('//import', line) || strstr('//i', line) || strstr('//use', line)){
+			//import指令
+			var data = parseImport(line);
+			ret.depends.push(data);
+			preCodes.push('var ' + data.refName + ' = ' + data.className + ';');
+		} else if(strstr('//namespace', line) || strstr('//ns', line)){
+			var t = line.split(' ');
+			if(t.length > 0){
+				var realNs = t[1];
+				if(orderNs != realNs){
+					throw 'Namespace mismatch, order: ' + orderNs + ', now: ' + realNs;
+				}
+			}
+		}
+	}
+	if(orderNs != ''){
+		endCodes.push('namespace("' + orderNs + '").' + className + ' = ' + className + ';');
+		ret.script = '(function(){\n' + preCodes.join('\n') + '\n' + script + '\n' + endCodes.join('\n') + '\n' + '})();';
+	} else {
+		
+	ret.script = preCodes.join('\n') + '\n' + script;
+	}
+	return ret;
 }
 
 function loader(useCall, target){
@@ -90,33 +226,13 @@ function loader(useCall, target){
 		}
 		//use函数（先添加进缓存列表）
 		//格式：url#class:alias
-		function use(str){
-			if(str == undefined){
+		function use(useData){
+			if(useData == undefined){
 				throw "Wrong function args";
 			}
-			var useData = {};
-			var baseFile = str;
-			//设置url
-			var t = baseFile.split('#');
-			if(t.length == 2){
-			    useData.url = t[0];
-			    baseFile = t[1];
+			if(typeof useData == 'string'){
+				useData = parseImport(useData);
 			}
-			//设置类别名
-			var t = baseFile.split(':');
-			if(t.length == 2){
-				useData.name = t[1];
-				baseFile = t[0];
-			}
-			
-			if(useData.url == undefined){
-			    useData.url = baseDir + baseFile.replace(/\./g, '/') + '.js';
-			}
-			if(useData.name == undefined){
-			    useData.name = getBasename(baseFile);
-			}
-			useData.class = baseFile;
-			useData.loaded = false;
 			useList.push(useData);
 		}
 		//加载完成回调
@@ -135,42 +251,40 @@ function loader(useCall, target){
 			throw "Unknow use type";
 		}
 		//开始加载
-		$.ajaxSetup({
-			cache: true,
-		});
 		useList.forEach((val, key) => {
-			if(isClassExists(val.class)){ //判断是否是已加载的类
-				var tObj = eval(val.class)
-				target[val.name] = tObj;
+			var tObj;
+			if(isClassExists(val.className)){ //判断是否是已加载的类
+				tObj = eval(val.className)
+				target[val.refName] = tObj;
 				useList[key].loaded = true;
 				loaded ++;
-				onLoaded(key, val.name, tObj);
+				onLoaded(key, val.refName, tObj);
 			} else { //从服务器加载文件
-				$.getScript(val.url).done(() => {
-				    //检测是否为class文件
-					if(isClassExists(val.class)){
-						tObj = eval(val.class);
-						//开始进行循环依赖初始化
-						if(typeof dependList[val.class] != 'undefined'){
-							loader((use) => {
-								dependList[val.class].forEach((package) => {
-									use(package);
-								});
-							}, tObj).then(() => {
-							    console.log(val.name);
-								onLoaded(key, val.name, tObj);
-							}).catch((e) => {
-								reject(e);
-							});
-						} else {
-							onLoaded(key, val.name, tObj);
-						}
-					} else {
-						reject('unable to find class: ' + val.class);
+				data.fs.readFile(val.url).then((content) => {
+					if(content === false){ //文件加载失败
+						reject('unable to find class: ' + val.className);
+						return;
 					}
-				}).fail((a, b, e) => {
-					reject(e);
-					return;
+					var scriptData = parseScript(content, val.className);
+					//开始进行循环依赖初始化
+					if(scriptData.depends.length != 0){
+						loadedClasses.push(scriptData.className);
+						loader((use) => {
+							scriptData.depends.forEach((package) => {
+								use(package);
+							});
+						}).then(() => {
+							DOMEval(scriptData.script);
+							tObj = eval(val.className);
+							onLoaded(key, val.refName, tObj);
+						}).catch((e) => {
+							reject(e);
+						});
+					} else {
+						DOMEval(scriptData.script);
+						tObj = eval(val.className);
+						onLoaded(key, val.refName, tObj);
+					}
 				});
 			}
 		});

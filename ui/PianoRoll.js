@@ -1,13 +1,12 @@
 'use strict';
+//import data.Note
+//import data.NoteList
+//import ui.Utils
+//import events.EventEmitter
 
-depends('ui.PianoRoll', [
-	'data.Note',
-	'data.NoteList',
-	'ui.Utils',
-	'events.EventEmitter'
-]);
+//namespace ui
 
-namespace('ui').PianoRoll = function(hz, dom, width, height){
+function PianoRoll(hz, dom, width, height){
     var eventEmitter = new events.EventEmitter();
     
 	var noteList;

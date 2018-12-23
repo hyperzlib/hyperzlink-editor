@@ -1,8 +1,7 @@
-depends('ui.NavBar', [
-    'events.EventEmitter',
-]);
+//import events.EventEmitter
+//namespace ui
 
-namespace('ui').NavBar = function(dom){
+function NavBar(dom){
     //! private
     var emitter = new events.EventEmitter();
     var navList = {};

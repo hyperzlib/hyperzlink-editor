@@ -1,3 +1,4 @@
-namespace('ui.Panel').Panel = function(){
-    
-};
+//namespace ui.Panel
+class Panel {
+
+}

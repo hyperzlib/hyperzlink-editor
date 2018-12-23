@@ -1,31 +1,30 @@
-depends('controller.MainMenu', [
-    'events.EventEmitter',
-]);
- 
-namespace('controller').MainMenu = function(menuBar){
-    var eventEmitter = new events.EventEmitter();
-    this.constructor = function(menuBar){
+//import events.EventEmitter
+
+//namespace controller
+class MainMenu {
+    constructor(menuBar){
         this.menuBar = menuBar;
         this.initMenus();
+        this.event = new EventEmitter();
         this.on = eventEmitter.on;
         this.off = eventEmitter.off;
     }
 
-    this.initMenus = function(){
+    initMenus(){
         //File
         this.menuBar.addNav('file', 'File', 'F');
-        this.menuBar.file.addMenuItem('new', 'New', buildCallback('file.new'), 'N');
-        this.menuBar.file.addMenuItem('open', 'Open', buildCallback('file.open'), 'O');
-        this.menuBar.file.addMenuItem('save', 'Save', buildCallback('file.save'), 'S');
-        this.menuBar.file.addMenuItem('saveas', 'Save as', buildCallback('file.save'), 'A');
+        this.menuBar.file.addMenuItem('new', 'New', this.buildCallback('file.new'), 'N');
+        this.menuBar.file.addMenuItem('open', 'Open', this.buildCallback('file.open'), 'O');
+        this.menuBar.file.addMenuItem('save', 'Save', this.buildCallback('file.save'), 'S');
+        this.menuBar.file.addMenuItem('saveas', 'Save as', this.buildCallback('file.save'), 'A');
         this.menuBar.file.addMenuItem('-');
-        this.menuBar.file.addMenuItem('import', 'Import', buildCallback('file.import'), 'I');
-        this.menuBar.file.addMenuItem('export', 'Export', buildCallback('file.export'), 'E');
+        this.menuBar.file.addMenuItem('import', 'Import', this.buildCallback('file.import'), 'I');
+        this.menuBar.file.addMenuItem('export', 'Export', this.buildCallback('file.export'), 'E');
         
         //Edit
         this.menuBar.addNav('edit', 'Edit', 'E');
-        this.menuBar.edit.addMenuItem('undo', 'Undo', buildCallback('edit.undo'), 'U', 'Ctrl+Z');
-        this.menuBar.edit.addMenuItem('redo', 'Redo', buildCallback('edit.undo'), 'R', 'Ctrl+Y');
+        this.menuBar.edit.addMenuItem('undo', 'Undo', this.buildCallback('edit.undo'), 'U', 'Ctrl+Z');
+        this.menuBar.edit.addMenuItem('redo', 'Redo', this.buildCallback('edit.undo'), 'R', 'Ctrl+Y');
 
         this.menuBar.addNav('voice', 'Voice', 'V');
         this.menuBar.addNav('synthetize', 'Synthetize', 'T');
@@ -33,12 +32,10 @@ namespace('controller').MainMenu = function(menuBar){
         this.menuBar.addNav('help', 'Help', 'H');
     }
 
-    function buildCallback(name){
+    buildCallback(name){
         return () => {
-            eventEmitter.emit('menu.' + name);
-            eventEmitter.emit('menu', name);
+            this.event.emit('menu.' + name);
+            this.event.emit('menu', name);
         }
     }
-
-    this.constructor(menuBar);
 }

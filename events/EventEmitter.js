@@ -1,4 +1,5 @@
-namespace('events').EventEmitter = function(){
+//namespace events
+function EventEmitter(){
     var eventList = {};
     this.on = function(name, callback){
         if(typeof callback == 'function'){

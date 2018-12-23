@@ -1,4 +1,4 @@
-class HyperZlink{
+class HyperZlink {
     resize(){
         var width = $(window).width();
         var height = $(window).height();

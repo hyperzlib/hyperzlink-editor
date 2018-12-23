@@ -1,4 +1,5 @@
-namespace('ui').MenuBar = function(dom){
+//namespace ui
+function MenuBar(dom){
     var nav;
     var style;
     var navDomList = {};

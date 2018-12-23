@@ -1,4 +1,6 @@
-namespace('data').Note = function(hz, father){
+//namespace data
+
+function Note(hz, father){
 	var pianoRoll = hz.pianoRoll;
 
 	this.id = 0;

@@ -1,5 +1,7 @@
-namespace('ui').Utils = {
-	getTransColor: function(fg, bg, alpha){
+//namespace ui
+
+class Utils {
+	static getTransColor(fg, bg, alpha){
 		//最终颜色 = 背景 * (1 - alpha) + 前景 * alpha
 		var bg = this.hexToRgb(bg);
 		var fg = this.hexToRgb(fg);
@@ -11,14 +13,13 @@ namespace('ui').Utils = {
 			ret.push(mg);
 		}
 		return ret;
-	},
-	getFinalColor: function(fg, bg, alpha){
+	}
 
-	},
-	getRgba: function(data, alpha){
+	static getRgba(data, alpha){
 		return 'rgba(' + data.join(',') + ',' + alpha + ')';
-	},
-	hexToRgb: function(hex){
+	}
+
+	static hexToRgb(hex){
 		if(hex[0] == '#'){
 			hex = hex.substr(1, 6);
 		}
@@ -27,8 +28,9 @@ namespace('ui').Utils = {
 			ret.push(parseInt(hex.substr(i, 2), 16));
 		}
 		return ret;
-	},
-	sCurve: function(x1, y1, x2, y2){
+	}
+
+	static sCurve(x1, y1, x2, y2){
 	    var reverse = false;
 	    if(y1 < y2){
 	        reverse = true;
@@ -44,8 +46,9 @@ namespace('ui').Utils = {
 	        ret[i] = A * Math.cos(w * i + sai) + A + fix;
 	    }
 	    return ret;
-	},
-	rCurve: function(x1, y1, x2, y2){
+	}
+
+	static rCurve(x1, y1, x2, y2){
 	    var reverse = false;
 	    var fix = Math.min(y1, y2);
 	    var xLen = Math.max(x1, x2) - Math.min(x1, x2);
@@ -63,8 +66,9 @@ namespace('ui').Utils = {
 	        ret[i] = yLen * Math.sin(w * i + sai) + yLen + fix;
 	    }
 	    return ret;
-	},
-	jCurve: function(x1, y1, x2, y2){
+	}
+
+	static jCurve(x1, y1, x2, y2){
 	    var reverse = false;
 	    var fix = Math.min(y1, y2);
 	    var xLen = Math.max(x1, x2) - Math.min(x1, x2);
@@ -82,5 +86,5 @@ namespace('ui').Utils = {
 	        ret[i] = yLen * Math.cos(w * i + sai) + yLen + fix;
 	    }
 	    return ret;
-	},
+	}
 };
