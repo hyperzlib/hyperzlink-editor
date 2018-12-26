@@ -1,3 +1,6 @@
+//import ui.MenuBar
+//import ui.PianoRoll
+
 class HyperZlink {
     resize(){
         var width = $(window).width();
@@ -16,7 +19,8 @@ class HyperZlink {
     }
     
 	init(){
-	    loader((use) => {
+        console.log('loaded');
+	    /*loader((use) => {
             use('ui.MenuBar');
             use('ui.NavBar');
             use('ui.PianoRoll');
@@ -69,6 +73,6 @@ class HyperZlink {
         	});
         }).catch((e) => {
             console.log(e);
-        });
+        });*/
 	}
 };

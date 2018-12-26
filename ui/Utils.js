@@ -1,5 +1,4 @@
 //namespace ui
-
 class Utils {
 	static getTransColor(fg, bg, alpha){
 		//最终颜色 = 背景 * (1 - alpha) + 前景 * alpha

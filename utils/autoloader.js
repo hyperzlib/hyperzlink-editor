@@ -11,11 +11,24 @@ data.fs = {
 					break;
 			}
 			return data;
-		} 
+		} else {
+			return false;
+		}
 	}
 };
 
 var loadedClasses = [];
+var classes = {};
+var classesObj = {};
+var tempClassFunction;
+/**
+ * 结构
+ * 被依赖的类: [依赖类， 依赖名]
+ */
+var rDepends = {};
+function classet(name){
+	return namespace('classes.' + name);
+}
 
 function getBaseDir(){
 	return location.href.substr(0, location.href.lastIndexOf('/')) + '/';
@@ -63,6 +76,7 @@ function isClassExists(cname){
 		}
 	}
 	if(typeof t == 'function' || typeof t == 'object'){
+		loadedClasses.push(cname);
 		return true;
 	} else {
 		return false;
@@ -185,17 +199,23 @@ function parseScript(script, namespace = ''){
 	var ret = {
 		depends: [],
 		script: '',
+		forceDepend: null,
 	};
 	var nsPath = namespace.split('.');
 	var orderNs = namespace.substr(0, namespace.lastIndexOf('.'));
 	var className = nsPath[nsPath.length - 1];
+	var prefix;
+
+	var setter = "this.set = function(refName, className){ eval(refName + ' = ' + className); }";
 	for(var i in lines){
 		var line = lines[i].trim();
 		if(strstr('//import', line) || strstr('//i', line) || strstr('//use', line)){
-			//import指令
+			//import指令（弱加载用）
 			var data = parseImport(line);
 			ret.depends.push(data);
-			preCodes.push('var ' + data.refName + ' = ' + data.className + ';');
+			preCodes.push('var ' + data.refName + ';');
+			if(rDepends[data.className] == undefined) rDepends[data.className] = [];
+			rDepends[data.className].push([className, data.refName]);
 		} else if(strstr('//namespace', line) || strstr('//ns', line)){
 			var t = line.split(' ');
 			if(t.length > 0){
@@ -204,14 +224,26 @@ function parseScript(script, namespace = ''){
 					throw 'Namespace mismatch, order: ' + orderNs + ', now: ' + realNs;
 				}
 			}
+		} else if(strstr('class', line)){
+			//判断类继承以决定使用强依赖加载或弱依赖加载
+			var args = splitArgs(line.replace(/\{$/g, ''));
+			if(args.length >= 4 && args[2] == 'extends'){
+				//使用强加载模式
+				ret.forceDepend = args[3]; //使用强加载的类名
+			}
 		}
 	}
 	if(orderNs != ''){
 		endCodes.push('namespace("' + orderNs + '").' + className + ' = ' + className + ';');
-		ret.script = '(function(){\n' + preCodes.join('\n') + '\n' + script + '\n' + endCodes.join('\n') + '\n' + '})();';
+		prefix = "classes['" + orderNs + "." + className + "']";
+		ret.script = prefix + ' = function(){\n'
+			+ preCodes.join('\n') + '\n' + script + '\n' + setter + '\n' + endCodes.join('\n') + '\n};';
 	} else {
-		
-	ret.script = preCodes.join('\n') + '\n' + script;
+		endCodes.push('tempClassFunction = ' + className + ';');
+		prefix = "classes['" + className + "']";
+		ret.script = prefix + ' = function(){\n'
+			+ preCodes.join('\n') + '\n' + script + '\n' + setter + '\n' + endCodes.join('\n')
+			+'\n};\nvar ' + className + ' = tempClassFunction;';
 	}
 	return ret;
 }
@@ -237,6 +269,7 @@ function loader(useCall, target){
 		}
 		//加载完成回调
 		function onLoaded(index, name, obj){
+			console.log(name);
 			target[name] = obj;
 			useList[index].loaded = true;
 			loaded ++;
@@ -253,6 +286,7 @@ function loader(useCall, target){
 		//开始加载
 		useList.forEach((val, key) => {
 			var tObj;
+			console.log(val);
 			if(isClassExists(val.className)){ //判断是否是已加载的类
 				tObj = eval(val.className)
 				target[val.refName] = tObj;
@@ -266,8 +300,12 @@ function loader(useCall, target){
 						return;
 					}
 					var scriptData = parseScript(content, val.className);
+					console.log(scriptData);
+					if(scriptData.forceDepend !== null){ //加载强加载的类
+
+					}
 					//开始进行循环依赖初始化
-					if(scriptData.depends.length != 0){
+					/*if(scriptData.depends.length != 0){
 						loadedClasses.push(scriptData.className);
 						loader((use) => {
 							scriptData.depends.forEach((package) => {
@@ -284,6 +322,81 @@ function loader(useCall, target){
 						DOMEval(scriptData.script);
 						tObj = eval(val.className);
 						onLoaded(key, val.refName, tObj);
+					}*/
+				});
+			}
+		});
+	});
+}
+
+function loadClass(useList){
+	return new Promise((resolve, reject) => {
+		var loaded = 0;
+		if(typeof useList == 'string'){
+			useList = [useList];
+		}
+		//加载完成回调
+		function onLoaded(index, classData){
+			classData.ptr = eval(classData.className);
+			if(typeof rDepends[classData.className] != 'undefined'){
+				//给所有引用的类赋值
+				rDepends[classData.className].forEach((one) => {
+					if(typeof classesObj[one[0]] != 'undefined'){
+						classesObj[one[0]].set(one[1], classData.ptr);
+					}
+				});
+			}
+			loaded ++;
+			console.log(loaded, useList.length, classData.className, useList);
+			if(loaded == useList.length){
+				resolve();
+			}
+		}
+		//开始加载
+		useList.forEach((val, key) => {
+			if(typeof val == 'string'){
+				val = parseImport(val);
+			}
+			var tObj;
+			if(isClassExists(val.className)){ //判断是否是已加载的类
+				onLoaded(key, val);
+			} else { //从服务器加载文件
+				data.fs.readFile(val.url).then((content) => {
+					if(content === false){ //文件加载失败
+						reject('unable to find class: ' + val.className);
+						return;
+					}
+					var scriptData = parseScript(content, val.className);
+					if(scriptData.forceDepend !== null){ //加载强加载的类
+						loadClass(scriptData.forceDepend).then(() => {
+							DOMEval(scriptData.script);
+							if(typeof classes[val.className] != 'udnefined'){
+								classesObj[val.className] = new (classes[val.className]);
+								delete classes[val.className];
+								loadedClasses.push(val.className);
+							} else {
+								throw 'Class load failed: ' + scriptData.className;
+							}
+							//加载其他依赖项
+							loadClass(scriptData.depends).then(() => {
+								console.log('loaded: ' + val.className);
+								onLoaded(key, val);
+							});
+						});
+					} else {
+						DOMEval(scriptData.script);
+						if(typeof classes[val.className] != 'udnefined'){
+							classesObj[val.className] = new (classes[val.className]);
+							delete classes[val.className];
+							loadedClasses.push(val.className);
+						} else {
+							throw 'Class load failed: ' + scriptData.className;
+						}
+						//加载其他依赖项
+						loadClass(scriptData.depends).then(() => {
+							console.log('loaded: ' + val.className);
+							onLoaded(key, val);
+						});
 					}
 				});
 			}

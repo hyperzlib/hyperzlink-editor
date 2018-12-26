@@ -5,7 +5,6 @@
 //import events.EventEmitter
 
 //namespace ui
-
 function PianoRoll(hz, dom, width, height){
     var eventEmitter = new events.EventEmitter();
     
